@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GLOBAL_VARIABLES_H
+#define GLOBAL_VARIABLES_H
 
 #include <iostream>
 #include <fstream>
@@ -18,3 +19,5 @@ int checkerboardWidth = 0;
 float ambientCoeff = 0.0f;
 float diffuseCoeff = 0.0f;
 float reflectionCoeff = 0.0f;
+
+#endif // GLOBAL_VARIABLES_H

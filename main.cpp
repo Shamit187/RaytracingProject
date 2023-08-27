@@ -1,14 +1,12 @@
 #include "globalVariables.h"
 #include "fileUtils.h"
 
-
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glutSwapBuffers();
 }
 
 int main(int argc, char** argv) {
-    parseInputFile("description.txt");
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
