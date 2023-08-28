@@ -110,6 +110,7 @@ void display()
     glLoadIdentity();
     gluLookAt(cameraX, cameraY, cameraZ, cameraLookX, cameraLookY, cameraLookZ, cameraUpX, cameraUpY, cameraUpZ); // Set the camera position and orientation
 
+
     drawColorCube();
     drawColorPyramid();
 

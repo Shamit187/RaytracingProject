@@ -12,6 +12,7 @@ void initGL()
     glShadeModel(GL_SMOOTH);                           // Enable smooth shading
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // Nice perspective corrections
     glutKeyboardFunc(keyboard);
+    glutPassiveMotionFunc(mouse);
 }
 
 /* Handler for window re-size event. Called back when the window first appears and

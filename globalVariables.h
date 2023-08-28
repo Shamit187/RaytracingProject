@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <math.h>
 
 // for openGL
 #include <windows.h> // for MS Windows
@@ -26,12 +27,34 @@ char title[] = "3D Shapes";
 GLfloat cameraX = 0.0f;     // Camera position X
 GLfloat cameraY = 0.0f;     // Camera position Y
 GLfloat cameraZ = 5.0f;     // Camera position Z
-GLfloat cameraSpeed = 0.1f; // Camera movement speed
+GLfloat cameraSpeed = 0.01f; // Camera movement speed
 GLfloat cameraLookX = 0.0f; // Camera look-at point X
 GLfloat cameraLookY = 0.0f; // Camera look-at point Y
 GLfloat cameraLookZ = 0.0f; // Camera look-at point Z
 GLfloat cameraUpX = 0.0f;   // Camera up vector X
 GLfloat cameraUpY = 1.0f;   // Camera up vector Y
 GLfloat cameraUpZ = 0.0f;   // Camera up vector Z
+GLfloat tiltingAngle = 0.1f;
+
+void resetCamera(){
+    cameraX = 0.0f;     // Camera position X
+    cameraY = 0.0f;     // Camera position Y
+    cameraZ = 5.0f;     // Camera position Z
+    cameraSpeed = 0.1f; // Camera movement speed
+    cameraLookX = 0.0f; // Camera look-at point X
+    cameraLookY = 0.0f; // Camera look-at point Y
+    cameraLookZ = 0.0f; // Camera look-at point Z
+    cameraUpX = 0.0f;   // Camera up vector X
+    cameraUpY = 1.0f;   // Camera up vector Y
+    cameraUpZ = 0.0f;   // Camera up vector Z
+    tiltingAngle = 0.1f;
+}
+
+int prevMouseX, prevMouseY; // Previous mouse coordinates
+bool mouseInitialized = false; // Flag to check if the mouse has been initialized
+
+GLfloat ScreenWidth = 640.0f;
+GLfloat ScreenHeight = 480.0f;
+
 
 #endif // GLOBAL_VARIABLES_H
