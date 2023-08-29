@@ -2,6 +2,7 @@
 #include "keycontrol.h"
 #include "display.h"
 #include "parser.h"
+#include "ray.h"
 
 /* Initialize OpenGL Graphics */
 void initGL()

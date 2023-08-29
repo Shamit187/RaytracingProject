@@ -1,3 +1,6 @@
+#ifndef DISPLAY_H
+#define DISPLAY_H
+
 #include "globalVariables.h"
 #include <GL/glut.h> // or appropriate OpenGL header
 #define M_PI 3.14159265358979323846
@@ -167,13 +170,13 @@ void drawCheckerBoard()
 {
     glPushMatrix();
     // draw a plane that is xz plane and has alternating color
-    GLfloat xLimitLow = (eye.x - 20 * checkerboardWidth)/checkerboardWidth;
-    GLfloat xLimitHigh = (eye.x + 20 * checkerboardWidth)/checkerboardWidth;
-    GLfloat zLimitLow = (eye.z - 20 * checkerboardWidth)/checkerboardWidth;
-    GLfloat zLimitHigh = (eye.z + 20 * checkerboardWidth)/checkerboardWidth;
+    GLfloat xLimitLow = (eye.x - 20 * checkerboardWidth) / checkerboardWidth;
+    GLfloat xLimitHigh = (eye.x + 20 * checkerboardWidth) / checkerboardWidth;
+    GLfloat zLimitLow = (eye.z - 20 * checkerboardWidth) / checkerboardWidth;
+    GLfloat zLimitHigh = (eye.z + 20 * checkerboardWidth) / checkerboardWidth;
 
     glBegin(GL_QUADS);
-    for (int i = xLimitLow ; i < xLimitHigh ; i++)
+    for (int i = xLimitLow; i < xLimitHigh; i++)
     {
         for (int j = zLimitLow; j < zLimitHigh; j++)
         {
@@ -225,3 +228,5 @@ void display()
 
     glutSwapBuffers(); // Swap the front and back frame buffers (double buffering)
 }
+
+#endif

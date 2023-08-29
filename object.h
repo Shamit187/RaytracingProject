@@ -1,3 +1,6 @@
+#ifndef OBJECT_H
+#define OBJECT_H
+
 #include "vector3.h"
 
 struct Color
@@ -11,14 +14,6 @@ struct Material
     float ambient, diffuse, specular, reflection;
     int shininess;
 };
-
-struct Light
-{
-    bool isSpot;
-    float x, y, z, falloff;
-    float dirX, dirY, dirZ, cutoff;
-};
-
 struct Sphere
 {
     vec3 center;
@@ -42,6 +37,25 @@ struct Cube
     Material material;
 };
 
+struct Quad
+{
+    vec3 bottomLeftPoint;
+    vec3 bottomRightPoint;
+    vec3 topLeftPoint;
+    vec3 topRightPoint;
+    vec3 normal;
+    Material material;
+};
+
+struct Triangle
+{
+    vec3 point1;
+    vec3 point2;
+    vec3 point3;
+    vec3 normal;
+    Material material;
+};
+
 struct normalLight
 {
     vec3 position;
@@ -55,3 +69,5 @@ struct spotLight
     vec3 direction;
     float cutoff;
 };
+
+#endif // OBJECT_H

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include "globalVariables.h"
-
+#include "vector3.h"
 
 bool parseSceneFile(const std::string &filename)
 {
@@ -20,7 +20,7 @@ bool parseSceneFile(const std::string &filename)
     inputFile >> nearPlane >> farPlane >> fovY >> aspectRatio;
     inputFile >> recursionLevel >> numPixels;
     inputFile >> checkerboardWidth;
-    inputFile >> checkerboardAmbientCoeff >> checkerboardDiffuseCoeff >> checkerboardReflectionCoeff; 
+    inputFile >> checkerboardAmbientCoeff >> checkerboardDiffuseCoeff >> checkerboardReflectionCoeff;
 
     int numberOfObject;
     inputFile >> numberOfObject;
@@ -66,7 +66,37 @@ bool parseSceneFile(const std::string &filename)
             pyramid.material = material;
 
             pyramids.push_back(pyramid);
-        
+
+            // Calculate vertices of bottom face
+            vec3 vertices[4];
+            vertices[0] = pyramid.lowestPoint + vec3(pyramid.width / 2, 0.0f, pyramid.width / 2);
+            vertices[1] = pyramid.lowestPoint + vec3(pyramid.width / 2, 0.0f, -pyramid.width / 2);
+            vertices[2] = pyramid.lowestPoint + vec3(-pyramid.width / 2, 0.0f, -pyramid.width / 2);
+            vertices[3] = pyramid.lowestPoint + vec3(-pyramid.width / 2, 0.0f, pyramid.width / 2);
+
+            // Calculate vertices of top point
+            vec3 topPoint = pyramid.lowestPoint + vec3(0.0f, pyramid.height, 0.0f);
+
+            // Calculate normal of bottom face
+            vec3 normal = (vertices[1] - vertices[0]).cross(vertices[2] - vertices[0]).normalize();
+
+            // Calculate normal of side face 1
+            vec3 normal1 = (vertices[0] - topPoint).cross(vertices[1] - topPoint).normalize();
+
+            // Calculate normal of side face 2
+            vec3 normal2 = (vertices[1] - topPoint).cross(vertices[2] - topPoint).normalize();
+
+            // Calculate normal of side face 3
+            vec3 normal3 = (vertices[2] - topPoint).cross(vertices[3] - topPoint).normalize();
+
+            // Calculate normal of side face 4
+            vec3 normal4 = (vertices[3] - topPoint).cross(vertices[0] - topPoint).normalize();
+
+            quads.push_back(Quad{vertices[0], vertices[1], vertices[2], vertices[3], normal, material});
+            triangles.push_back(Triangle{vertices[0], vertices[1], topPoint, normal1, material});
+            triangles.push_back(Triangle{vertices[1], vertices[2], topPoint, normal2, material});
+            triangles.push_back(Triangle{vertices[2], vertices[3], topPoint, normal3, material});
+            triangles.push_back(Triangle{vertices[3], vertices[0], topPoint, normal4, material});
         }
         else if (objectType == "cube")
         {
@@ -86,8 +116,44 @@ bool parseSceneFile(const std::string &filename)
             cube.material = material;
 
             cubes.push_back(cube);
-        }
 
+            // Calculate vertices
+            vec3 vertices[8];
+            vertices[0] = cube.bottomLowerLeftPoint;
+            vertices[1] = vertices[0] + vec3(cube.side, 0.0f, 0.0f);
+            vertices[2] = vertices[0] + vec3(cube.side, 0.0f, cube.side);
+            vertices[3] = vertices[0] + vec3(0.0f, 0.0f, cube.side);
+            vertices[4] = vertices[0] + vec3(0.0f, cube.side, 0.0f);
+            vertices[5] = vertices[1] + vec3(0.0f, cube.side, 0.0f);
+            vertices[6] = vertices[2] + vec3(0.0f, cube.side, 0.0f);
+            vertices[7] = vertices[3] + vec3(0.0f, cube.side, 0.0f);
+
+            // Calculate normal of bottom face
+            vec3 normal = (vertices[1] - vertices[0]).cross(vertices[2] - vertices[0]).normalize();
+
+            // Calculate normal of side face 1 (front)
+            vec3 normal1 = (vertices[0] - vertices[4]).cross(vertices[1] - vertices[4]).normalize();
+
+            // Calculate normal of side face 2 (right)
+            vec3 normal2 = (vertices[1] - vertices[5]).cross(vertices[2] - vertices[5]).normalize();
+
+            // Calculate normal of side face 3 (back)
+            vec3 normal3 = (vertices[2] - vertices[6]).cross(vertices[3] - vertices[6]).normalize();
+
+            // Calculate normal of side face 4 (left)
+            vec3 normal4 = (vertices[3] - vertices[7]).cross(vertices[0] - vertices[7]).normalize();
+
+            // Calculate normal of top face
+            vec3 normal5 = (vertices[4] - vertices[5]).cross(vertices[6] - vertices[5]).normalize();
+
+            quads.push_back(Quad{vertices[0], vertices[1], vertices[2], vertices[3], normal, material});
+            quads.push_back(Quad{vertices[0], vertices[1], vertices[5], vertices[4], normal1, material});
+            quads.push_back(Quad{vertices[1], vertices[2], vertices[6], vertices[5], normal2, material});
+            quads.push_back(Quad{vertices[2], vertices[3], vertices[7], vertices[6], normal3, material});
+
+            quads.push_back(Quad{vertices[3], vertices[0], vertices[4], vertices[7], normal4, material});
+            quads.push_back(Quad{vertices[4], vertices[5], vertices[6], vertices[7], normal5, material});
+        }
     }
 
     int numberOfNormalLight;
@@ -124,11 +190,11 @@ bool parseSceneFile(const std::string &filename)
         spotLights.push_back(light);
     }
 
-
     return true;
 }
 
-void printDescriptionOfScene(){
+void printDescriptionOfScene()
+{
     std::cout << "nearPlane: " << nearPlane << std::endl;
     std::cout << "farPlane: " << farPlane << std::endl;
     std::cout << "fovY: " << fovY << std::endl;

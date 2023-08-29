@@ -49,6 +49,8 @@ GLfloat ScreenHeight = 480.0f;
 std::vector<Sphere> spheres;
 std::vector<Pyramid> pyramids;
 std::vector<Cube> cubes;
+std::vector<Quad> quads;
+std::vector<Triangle> triangles;
 
 /* All lights for scene */
 std::vector<normalLight> normalLights;

@@ -39,6 +39,11 @@ struct vec3
         return vec3(this->x * s, this->y * s, this->z * s);
     }
 
+    vec3 operator/(const GLfloat &s) const
+    {
+        return vec3(this->x / s, this->y / s, this->z / s);
+    }
+
     GLfloat dot(const vec3 &v) const
     {
         return this->x * v.x + this->y * v.y + this->z * v.z;

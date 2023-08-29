@@ -1,4 +1,8 @@
+#ifndef KEYCONTROL_H
+#define KEYCONTROL_H
+
 #include "globalVariables.h"
+#include "rayTrace.h"
 
 void keyboard(unsigned char key, int x, int y)
 {
@@ -65,6 +69,9 @@ void keyboard(unsigned char key, int x, int y)
     case 'r':
         resetCamera();
         break;
+    case 13: // Enter key
+        startRayTrace();
+        break;
     case 27: // Escape key
         exit(0);
         break;
@@ -93,3 +100,5 @@ void mouse(int x, int y)
 
     glutPostRedisplay(); // Trigger a repaint
 }
+
+#endif // KEYCONTROL_H
