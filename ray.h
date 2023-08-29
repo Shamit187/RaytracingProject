@@ -5,13 +5,13 @@
 #include <vector>
 #include <math.h>
 
-struct intersection
+struct Intersection
 {
     vec3 point;
     vec3 normal;
 };
 
-struct ray
+struct Ray
 {
     vec3 A;
     vec3 B;
@@ -19,15 +19,15 @@ struct ray
 
     vec3 point_at_parameter(float t) const { return A + B * t; }
 
-    ray() {}
-    ray(const vec3 &a, const vec3 &b, float ti = 0.0)
+    Ray() {}
+    Ray(const vec3 &a, const vec3 &b, float ti = 0.0)
     {
         A = a;
         B = b;
         time = ti;
     }
 
-    intersection intersect(const Sphere &sphere) const
+    Intersection intersect(const Sphere &sphere) const
     {
         vec3 oc = A - sphere.center;
         float a = B.dot(B);
@@ -37,22 +37,23 @@ struct ray
         if (discriminant > 0)
         {
             float temp = (-b - sqrt(discriminant)) / a;
+            
             if (temp < 0.0f)
             {
                 temp = (-b + sqrt(discriminant)) / a;
             }
             if (temp > 0.0f)
             {
-                intersection result;
+                Intersection result;
                 result.point = point_at_parameter(temp);
                 result.normal = (result.point - sphere.center) / sphere.radius;
                 return result;
             }
         }
-        return intersection();
+        return Intersection();
     }
 
-    intersection intersect(const Triangle &triangle) const
+    Intersection intersect(const Triangle &triangle) const
     {
         vec3 normal = triangle.normal;
         float t = (triangle.point1 - A).dot(normal) / B.dot(normal);
@@ -72,16 +73,16 @@ struct ray
             float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
             if (u >= 0.0f && v >= 0.0f && u + v <= 1.0f)
             {
-                intersection result;
+                Intersection result;
                 result.point = point;
                 result.normal = normal;
                 return result;
             }
         }
-        return intersection();
+        return Intersection();
     }
 
-    intersection intersect(const Quad &quad) const
+    Intersection intersect(const Quad &quad) const
     {
         vec3 normal = quad.normal;
         float t = (quad.bottomLeftPoint - A).dot(normal) / B.dot(normal);
@@ -101,19 +102,19 @@ struct ray
             float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
             if (u >= 0.0f && v >= 0.0f && u + v <= 1.0f)
             {
-                intersection result;
+                Intersection result;
                 result.point = point;
                 result.normal = normal;
                 return result;
             }
         }
-        return intersection();
+        return Intersection();
     }
 };
 
-std::vector<ray> generateRays(const float fovY,const float aspectRatio,const vec3 &eye,const vec3 &lookAt,const vec3 &up,const int numPixels)
+std::vector<Ray> generateRays(const float fovY,const float aspectRatio,const vec3 &eye,const vec3 &lookAt,const vec3 &up,const int numPixels)
 {
-    std::vector<ray> rays;
+    std::vector<Ray> rays;
     vec3 w = (eye - lookAt).normalize();
     vec3 u = up.cross(w).normalize();
     vec3 v = w.cross(u);
@@ -131,7 +132,7 @@ std::vector<ray> generateRays(const float fovY,const float aspectRatio,const vec
             float y = (float)j / (float)numPixels;
             vec3 direction = lowerLeftCorner + horizontal * x + vertical * y - eye;
             direction = direction.normalize();
-            ray r = ray(eye, direction);
+            Ray r = Ray(eye, direction);
             rays.push_back(r);
         }
     }

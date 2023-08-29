@@ -7,6 +7,7 @@
 #include <iostream>
 #include "globalVariables.h"
 #include "vector3.h"
+#include "object.h"
 
 bool parseSceneFile(const std::string &filename)
 {
