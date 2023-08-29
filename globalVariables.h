@@ -27,13 +27,13 @@ float checkerboardReflectionCoeff = 0.0f;
 
 char title[] = "3D Shapes";
 
-vec3 eye = vec3(0.0f, 100.0f, 10.0f);
+vec3 eye = vec3(0.0f, 30.0f, 100.0f);
 vec3 lookAt = vec3(0.0f, 0.0f, 0.0f);
 vec3 up = vec3(0.0f, 1.0f, 0.0f);
 
 void resetCamera()
 {
-    eye = vec3(0.0f, 100.0f, 10.0f);
+    eye = vec3(0.0f, 30.0f, 100.0f);
     lookAt = vec3(0.0f, 0.0f, 10.0f);
     up = vec3(0.0f, 1.0f, 0.0f);
     return;

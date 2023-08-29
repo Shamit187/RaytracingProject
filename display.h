@@ -273,14 +273,28 @@ void drawPyramid(const Pyramid &pyramid)
 void drawCheckerBoard()
 {
     glPushMatrix();
-    // draw a plane that is xz plane
+    // draw a plane that is xz plane and has alternating color
     glBegin(GL_QUADS);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glVertex3f(-100.0f, 0.0f, -100.0f);
-    glVertex3f(-100.0f, 0.0f, 100.0f);
-    glVertex3f(100.0f, 0.0f, 100.0f);
-    glVertex3f(100.0f, 0.0f, -100.0f);
+    for (int i = -100; i < 100; i++)
+    {
+        for (int j = -100; j < 100; j++)
+        {
+            if ((i + j) % 2 == 0)
+            {
+                glColor3f(0.0f, 0.0f, 0.0f);
+            }
+            else
+            {
+                glColor3f(1.0f, 1.0f, 1.0f);
+            }
+            glVertex3f(i * checkerboardWidth, 0.0f, j * checkerboardWidth);
+            glVertex3f((i + 1) * checkerboardWidth, 0.0f, j * checkerboardWidth);
+            glVertex3f((i + 1) * checkerboardWidth, 0.0f, (j + 1) * checkerboardWidth);
+            glVertex3f(i * checkerboardWidth, 0.0f, (j + 1) * checkerboardWidth);
+        }
+    }
     glEnd();
+
     glPopMatrix();
 }
 
