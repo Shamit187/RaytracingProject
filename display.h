@@ -199,6 +199,37 @@ void drawCheckerBoard()
     glPopMatrix();
 }
 
+
+void drawTriangle(const Triangle &Triangle){
+    glPushMatrix();
+    // Set material properties
+    glColor3f(Triangle.material.color.r, Triangle.material.color.g, Triangle.material.color.b);
+    
+    glBegin(GL_TRIANGLES);
+    glVertex3f(Triangle.point1.x, Triangle.point1.y, Triangle.point1.z);
+    glVertex3f(Triangle.point2.x, Triangle.point2.y, Triangle.point2.z);
+    glVertex3f(Triangle.point3.x, Triangle.point3.y, Triangle.point3.z);
+    glEnd();
+
+    glPopMatrix();
+}
+
+void drawQuad(const Quad &quad){
+    glPushMatrix();
+
+    // Set material properties
+    glColor3f(quad.material.color.r, quad.material.color.g, quad.material.color.b);
+
+    glBegin(GL_QUADS);
+    glVertex3f(quad.bottomLeftPoint.x, quad.bottomLeftPoint.y, quad.bottomLeftPoint.z);
+    glVertex3f(quad.bottomRightPoint.x, quad.bottomRightPoint.y, quad.bottomRightPoint.z);
+    glVertex3f(quad.topRightPoint.x, quad.topRightPoint.y, quad.topRightPoint.z);
+    glVertex3f(quad.topLeftPoint.x, quad.topLeftPoint.y, quad.topLeftPoint.z);
+    glEnd();
+
+    glPopMatrix();
+}
+
 /* Handler for window-repaint event. Called back when the window first appears and
    whenever the window needs to be re-painted. */
 void display()
@@ -211,19 +242,28 @@ void display()
 
     drawCheckerBoard();
 
-    for (auto cube : cubes)
-    {
-        drawCube(cube);
-    }
+    // for (auto cube : cubes)
+    // {
+    //     drawCube(cube);
+    // }
 
     for (auto sphere : spheres)
     {
         drawSphere(sphere, 20, 20);
     }
 
-    for (auto pyramid : pyramids)
+    // for (auto pyramid : pyramids)
+    // {
+    //     drawPyramid(pyramid);
+    // }
+    for (auto triangle : triangles)
     {
-        drawPyramid(pyramid);
+        drawTriangle(triangle);
+    }
+
+    for (auto quad : quads)
+    {
+        drawQuad(quad);
     }
 
     glutSwapBuffers(); // Swap the front and back frame buffers (double buffering)

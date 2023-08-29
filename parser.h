@@ -131,7 +131,6 @@ bool parseSceneFile(const std::string &filename)
 
             // Calculate normal of bottom face
             vec3 normal = (vertices[1] - vertices[0]).cross(vertices[2] - vertices[0]).normalize();
-
             // Calculate normal of side face 1 (front)
             vec3 normal1 = (vertices[0] - vertices[4]).cross(vertices[1] - vertices[4]).normalize();
 
@@ -151,7 +150,6 @@ bool parseSceneFile(const std::string &filename)
             quads.push_back(Quad{vertices[0], vertices[1], vertices[5], vertices[4], normal1, material});
             quads.push_back(Quad{vertices[1], vertices[2], vertices[6], vertices[5], normal2, material});
             quads.push_back(Quad{vertices[2], vertices[3], vertices[7], vertices[6], normal3, material});
-
             quads.push_back(Quad{vertices[3], vertices[0], vertices[4], vertices[7], normal4, material});
             quads.push_back(Quad{vertices[4], vertices[5], vertices[6], vertices[7], normal5, material});
         }

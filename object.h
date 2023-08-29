@@ -116,7 +116,7 @@ struct Quad
         this->topRightPoint = vec3(0.0f, 0.0f, 0.0f);
     } // Default Constructor
 
-    Quad(vec3 bottomLeftPoint, vec3 bottomRightPoint, vec3 topLeftPoint, vec3 topRightPoint, vec3 normal, Material material)
+    Quad(vec3 bottomLeftPoint, vec3 bottomRightPoint, vec3 topRightPoint, vec3 topLeftPoint, vec3 normal, Material material)
     {
         this->bottomLeftPoint = bottomLeftPoint;
         this->bottomRightPoint = bottomRightPoint;
