@@ -51,3 +51,7 @@ int main(int argc, char **argv)
     glutMainLoop();                   // Enter the infinite event-processing loop
     return 0;
 }
+
+/* Command For Running the code */
+// g++ main.cpp -o demo.exe -lfreeglut -lglew32 -lopengl32 -lglu32
+// start demo.exe
