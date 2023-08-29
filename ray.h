@@ -37,7 +37,7 @@ struct Ray
         if (discriminant > 0)
         {
             float temp = (-b - sqrt(discriminant)) / a;
-            
+
             if (temp < 0.0f)
             {
                 temp = (-b + sqrt(discriminant)) / a;
@@ -55,64 +55,119 @@ struct Ray
 
     Intersection intersect(const Triangle &triangle) const
     {
-        vec3 normal = triangle.normal;
-        float t = (triangle.point1 - A).dot(normal) / B.dot(normal);
-        if (t > 0.0f)
+        Intersection intersection;
+
+        // Calculate the normal of the triangle
+        vec3 triangleNormal = (triangle.normal).normalize();
+
+        // Calculate the denominator of the ray-plane intersection formula
+        float denominator = triangleNormal.dot(B);
+
+        // Check if the ray is nearly parallel to the triangle
+        if (std::abs(denominator) > 1e-6)
         {
-            vec3 point = point_at_parameter(t);
-            vec3 v0 = triangle.point2 - triangle.point1;
-            vec3 v1 = triangle.point3 - triangle.point1;
-            vec3 v2 = point - triangle.point1;
-            float dot00 = v0.dot(v0);
-            float dot01 = v0.dot(v1);
-            float dot02 = v0.dot(v2);
-            float dot11 = v1.dot(v1);
-            float dot12 = v1.dot(v2);
-            float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-            float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-            float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-            if (u >= 0.0f && v >= 0.0f && u + v <= 1.0f)
+            // Calculate the vector from the ray's origin to a point on the triangle
+            vec3 originToTriangle = triangle.point1 - A;
+
+            // Calculate the distance from the ray's origin to the intersection point
+            float t = originToTriangle.dot(triangleNormal) / denominator;
+
+            // Check if the intersection point is in front of the ray
+            if (t >= 0.0f)
             {
-                Intersection result;
-                result.point = point;
-                result.normal = normal;
-                return result;
+                // Calculate the intersection point
+                vec3 intersectionPoint = A + B * t;
+
+                // Check if the intersection point is inside the triangle
+                vec3 edge1 = triangle.point2 - triangle.point1;
+                vec3 edge2 = triangle.point3 - triangle.point1;
+                vec3 h = B.cross(edge2);
+                float a = edge1.dot(h);
+
+                if (a > -1e-6 && a < 1e-6)
+                    return Intersection(); // Ray is parallel to the triangle
+
+                float f = 1.0f / a;
+                vec3 s = intersectionPoint - triangle.point1;
+                float u = f * s.dot(h);
+
+                if (u < 0.0f || u > 1.0f)
+                    return Intersection();
+
+                vec3 q = s.cross(edge1);
+                float v = f * B.dot(q);
+
+                if (v < 0.0f || u + v > 1.0f)
+                    return Intersection();
+
+                // The intersection point is inside the triangle
+                intersection.point = intersectionPoint;
+                intersection.normal = triangleNormal;
+                return intersection;
             }
         }
+
+        // If there is no valid intersection, return default values
         return Intersection();
     }
 
     Intersection intersect(const Quad &quad) const
     {
-        vec3 normal = quad.normal;
-        float t = (quad.bottomLeftPoint - A).dot(normal) / B.dot(normal);
-        if (t > 0.0f)
+        Intersection intersection;
+
+        // Calculate the normal of the plane defined by the quad
+        vec3 quadNormal = (quad.normal).normalize();
+
+        // Calculate the denominator of the ray-plane intersection formula
+        float denominator = quadNormal.dot(B);
+
+        // Check if the ray is nearly parallel to the plane
+        if (std::abs(denominator) > 1e-6)
         {
-            vec3 point = point_at_parameter(t);
-            vec3 v0 = quad.bottomRightPoint - quad.bottomLeftPoint;
-            vec3 v1 = quad.topLeftPoint - quad.bottomLeftPoint;
-            vec3 v2 = point - quad.bottomLeftPoint;
-            float dot00 = v0.dot(v0);
-            float dot01 = v0.dot(v1);
-            float dot02 = v0.dot(v2);
-            float dot11 = v1.dot(v1);
-            float dot12 = v1.dot(v2);
-            float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-            float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-            float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-            if (u >= 0.0f && v >= 0.0f && u + v <= 1.0f)
+            // Calculate the vector from the ray's origin to a point on the plane
+            vec3 originToQuad = quad.bottomLeftPoint - A;
+
+            // Calculate the distance from the ray's origin to the intersection point
+            float t = originToQuad.dot(quadNormal) / denominator;
+
+            // Check if the intersection point is in front of the ray
+            if (t >= 0.0f)
             {
-                Intersection result;
-                result.point = point;
-                result.normal = normal;
-                return result;
+                // Calculate the intersection point
+                intersection.point = A + B * t;
+
+                // Check if the intersection point is within the quad's boundaries
+                vec3 quadToIntersection = intersection.point - quad.bottomLeftPoint;
+                float dotBL = quadToIntersection.dot(quad.bottomRightPoint - quad.bottomLeftPoint);
+                float dotTL = quadToIntersection.dot(quad.topLeftPoint - quad.bottomLeftPoint);
+
+                if (dotBL >= 0.0f && dotBL <= (quad.bottomRightPoint - quad.bottomLeftPoint).dot(quad.bottomRightPoint - quad.bottomLeftPoint) &&
+                    dotTL >= 0.0f && dotTL <= (quad.topLeftPoint - quad.bottomLeftPoint).dot(quad.topLeftPoint - quad.bottomLeftPoint))
+                {
+                    // The intersection point is within the quad's boundaries
+                    intersection.normal = quadNormal;
+                    return intersection;
+                }
             }
+        }
+
+        // If there is no valid intersection, return default values
+        return Intersection();
+    }
+
+    Intersection intersectCheckerBoard() const{
+        Intersection intersection;
+        float t = -A.y / B.y;
+        if(t > 0){
+            intersection.point = point_at_parameter(t);
+            intersection.normal = vec3(0.0f, 1.0f, 0.0f);
+            return intersection;
         }
         return Intersection();
     }
 };
 
-std::vector<Ray> generateRays(const float fovY,const float aspectRatio,const vec3 &eye,const vec3 &lookAt,const vec3 &up,const int numPixels)
+std::vector<Ray> generateRays(const float fovY, const float aspectRatio, const vec3 &eye, const vec3 &lookAt, const vec3 &up, const int numPixels)
 {
     std::vector<Ray> rays;
     vec3 w = (eye - lookAt).normalize();

@@ -10,25 +10,45 @@
 #include <vector>
 #include <math.h>
 #include <chrono>
+#include <fstream>
 
 void startRayTrace()
 {
     /* Ray generation, buffer Initialization */
     auto start = std::chrono::high_resolution_clock::now();
     auto generatedRay = generateRays(fovY, aspectRatio, eye, lookAt, up, numPixels);
-    std::vector<std::vector <Color>> colorBuffer = std::vector<std::vector <Color>>(numPixels, std::vector<Color>(numPixels, Color(0.0f, 0.0f, 0.0f)));
-    std::vector<std::vector<GLfloat>> depthBuffer = std::vector<std::vector <GLfloat>>(numPixels, std::vector<float>(numPixels, (GLfloat)farPlane));
-    std::cout << "Far Plane: " << farPlane << "\n";
+    auto colorBuffer = std::vector<std::vector <Color>>(numPixels, std::vector<Color>(numPixels, Color(0.0f, 0.0f, 0.0f)));
+    auto depthBuffer = std::vector<std::vector <GLfloat>>(numPixels, std::vector<float>(numPixels, (GLfloat)farPlane));
     auto boundingBox = generateBoundingBox(nearPlane, farPlane, fovY, aspectRatio, eye, lookAt, up);
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "Ray Generation Complete. Total Rays " << generatedRay.size() << " Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
+
+    std::ofstream logFile;
+    logFile.open("log.txt");
 
     /* Intersection Calculation */
     start = std::chrono::high_resolution_clock::now();
     for(int i = 0; i < generatedRay.size(); i ++)
     {
-        int row = numPixels - (int)(i / numPixels);
+        int row = numPixels - (int)(i / numPixels) - 1;
         int col = (int)(i % numPixels);
+
+        //intersecting with the checkerboard
+        auto intersection = generatedRay[i].intersectCheckerBoard();
+        if(intersection.point.x != 0 || intersection.point.y != 0 || intersection.point.z != 0){
+            if((intersection.point - eye).length() < depthBuffer[row][col]){
+                depthBuffer[row][col] = (intersection.point - eye).length();
+                auto newX = (int)(intersection.point.x / checkerboardWidth);
+                auto newZ = (int)(intersection.point.z / checkerboardWidth);
+
+                if((newX + newZ) % 2 == 0){
+                    colorBuffer[row][col] = Color(0.0f, 0.0f, 0.0f);
+                }
+                else{
+                    colorBuffer[row][col] = Color(1.0f, 1.0f, 1.0f);
+                }
+            }
+        }
 
         for(auto sphere: spheres){
             Intersection intersection = generatedRay[i].intersect(sphere);
@@ -41,23 +61,24 @@ void startRayTrace()
             
         }
 
-        // for(auto triangle: triangles){
-        //     auto intersection = generatedRay[i].intersect(triangle);
-        //     // if(!checkInsideBoundingBox(intersection.point, boundingBox)) continue;
-        //     if((intersection.point - eye).length() < depthBuffer[row][col]){
-        //         depthBuffer[row][col] = (intersection.point - eye).length();
-        //         colorBuffer[row][col] = triangle.material.color;
-        //     }
-        // }
+        for(auto triangle: triangles){
+            auto intersection = generatedRay[i].intersect(triangle);
+            if(intersection.point.x == 0 && intersection.point.y == 0 && intersection.point.z == 0) continue;
+            // if(!checkInsideBoundingBox(intersection.point, boundingBox)) continue;
+            if((intersection.point - eye).length() < depthBuffer[row][col]){
+                depthBuffer[row][col] = (intersection.point - eye).length();
+                colorBuffer[row][col] = triangle.material.color;
+            }
+        }
 
-        // for(auto quad: quads){
-        //     auto intersection = generatedRay[i].intersect(quad);
-        //     // if(!checkInsideBoundingBox(intersection.point, boundingBox)) continue;
-        //     if((intersection.point - eye).length() < depthBuffer[row][col]){
-        //         depthBuffer[row][col] = (intersection.point - eye).length();
-        //         colorBuffer[row][col] = quad.material.color;
-        //     }
-        // }
+        for(auto quad: quads){
+            auto intersection = generatedRay[i].intersect(quad);
+            if(intersection.point.x == 0 && intersection.point.y == 0 && intersection.point.z == 0) continue;
+            if((intersection.point - eye).length() < depthBuffer[row][col]){
+                depthBuffer[row][col] = (intersection.point - eye).length();
+                colorBuffer[row][col] = quad.material.color;
+            }
+        }
     }
     end = std::chrono::high_resolution_clock::now();
     std::cout << "Intersection Calculation Complete. Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
