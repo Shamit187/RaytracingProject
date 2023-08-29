@@ -9,6 +9,9 @@ struct Intersection
 {
     vec3 point;
     vec3 normal;
+    bool valid;
+
+    Intersection() { valid = false; }
 };
 
 struct Ray
@@ -20,6 +23,7 @@ struct Ray
     vec3 point_at_parameter(float t) const { return A + B * t; }
 
     Ray() {}
+    
     Ray(const vec3 &a, const vec3 &b, float ti = 0.0)
     {
         A = a;
@@ -47,6 +51,7 @@ struct Ray
                 Intersection result;
                 result.point = point_at_parameter(temp);
                 result.normal = (result.point - sphere.center) / sphere.radius;
+                result.valid = true;
                 return result;
             }
         }
@@ -103,6 +108,7 @@ struct Ray
                 // The intersection point is inside the triangle
                 intersection.point = intersectionPoint;
                 intersection.normal = triangleNormal;
+                intersection.valid = true;
                 return intersection;
             }
         }
@@ -146,6 +152,7 @@ struct Ray
                 {
                     // The intersection point is within the quad's boundaries
                     intersection.normal = quadNormal;
+                    intersection.valid = true;
                     return intersection;
                 }
             }

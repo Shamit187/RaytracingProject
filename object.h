@@ -20,6 +20,21 @@ struct Color
         this->g = g;
         this->b = b;
     }
+
+    Color operator+(const Color &c) const
+    {
+        return Color(r + c.r, g + c.g, b + c.b);
+    }
+
+    Color operator*(const Color &c) const
+    {
+        return Color(r * c.r, g * c.g, b * c.b);
+    }
+
+    Color operator*(float f) const
+    {
+        return Color(r * f, g * f, b * f);
+    }
 };
 
 struct Material
@@ -156,6 +171,8 @@ struct normalLight
 {
     vec3 position;
     float falloff;
+    float intensity;
+    Color color;
 };
 
 struct spotLight
@@ -164,6 +181,8 @@ struct spotLight
     float falloff;
     vec3 direction;
     float cutoff;
+    float intensity;
+    Color color;
 };
 
 #endif // OBJECT_H

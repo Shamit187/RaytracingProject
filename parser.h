@@ -166,6 +166,8 @@ bool parseSceneFile(const std::string &filename)
         normalLight light;
         light.position = vec3(x, y, z);
         light.falloff = falloff;
+        light.intensity = 1.0f;
+        light.color = Color(1.0f, 1.0f, 1.0f);
 
         normalLights.push_back(light);
     }
@@ -185,6 +187,8 @@ bool parseSceneFile(const std::string &filename)
         light.falloff = falloff;
         light.direction = vec3(dirX, dirY, dirZ);
         light.cutoff = cutoff;
+        light.intensity = 1.0f;
+        light.color = Color(1.0f, 1.0f, 1.0f);
 
         spotLights.push_back(light);
     }
