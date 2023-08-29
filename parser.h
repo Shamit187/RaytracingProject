@@ -131,6 +131,7 @@ bool parseSceneFile(const std::string &filename)
 
             // Calculate normal of bottom face
             vec3 normal = (vertices[1] - vertices[0]).cross(vertices[2] - vertices[0]).normalize();
+            
             // Calculate normal of side face 1 (front)
             vec3 normal1 = (vertices[0] - vertices[4]).cross(vertices[1] - vertices[4]).normalize();
 

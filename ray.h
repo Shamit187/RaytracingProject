@@ -168,6 +168,7 @@ struct Ray
         if(t > 0){
             intersection.point = point_at_parameter(t);
             intersection.normal = vec3(0.0f, 1.0f, 0.0f);
+            intersection.valid = true;
             return intersection;
         }
         return Intersection();
