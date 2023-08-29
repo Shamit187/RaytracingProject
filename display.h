@@ -108,8 +108,7 @@ void display()
     glMatrixMode(GL_MODELVIEW);                         // To operate on model-view matrix
 
     glLoadIdentity();
-    gluLookAt(cameraX, cameraY, cameraZ, cameraLookX, cameraLookY, cameraLookZ, cameraUpX, cameraUpY, cameraUpZ); // Set the camera position and orientation
-
+    gluLookAt(eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z, up.x, up.y, up.z); // Set the camera position and orientation
 
     drawColorCube();
     drawColorPyramid();
