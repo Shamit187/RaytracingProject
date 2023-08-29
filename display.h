@@ -1,105 +1,6 @@
 #include "globalVariables.h"
-
-void drawColorCube()
-{
-    // Render a color-cube consisting of 6 quads with different colors
-    glPushMatrix(); // Reset the model-view matrix
-
-    glTranslatef(1.5f, 0.0f, -7.0f); // Move right and into the screen
-
-    glBegin(GL_QUADS); // Begin drawing the color cube with 6 quads
-    // Top face (y = 1.0f)
-    // Define vertices in counter-clockwise (CCW) order with normal pointing out
-    glColor3f(0.0f, 1.0f, 0.0f); // Green
-    glVertex3f(1.0f, 1.0f, -1.0f);
-    glVertex3f(-1.0f, 1.0f, -1.0f);
-    glVertex3f(-1.0f, 1.0f, 1.0f);
-    glVertex3f(1.0f, 1.0f, 1.0f);
-
-    // Bottom face (y = -1.0f)
-    glColor3f(1.0f, 0.5f, 0.0f); // Orange
-    glVertex3f(1.0f, -1.0f, 1.0f);
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-    glVertex3f(1.0f, -1.0f, -1.0f);
-
-    // Front face  (z = 1.0f)
-    glColor3f(1.0f, 0.0f, 0.0f); // Red
-    glVertex3f(1.0f, 1.0f, 1.0f);
-    glVertex3f(-1.0f, 1.0f, 1.0f);
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-    glVertex3f(1.0f, -1.0f, 1.0f);
-
-    // Back face (z = -1.0f)
-    glColor3f(1.0f, 1.0f, 0.0f); // Yellow
-    glVertex3f(1.0f, -1.0f, -1.0f);
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-    glVertex3f(-1.0f, 1.0f, -1.0f);
-    glVertex3f(1.0f, 1.0f, -1.0f);
-
-    // Left face (x = -1.0f)
-    glColor3f(0.0f, 0.0f, 1.0f); // Blue
-    glVertex3f(-1.0f, 1.0f, 1.0f);
-    glVertex3f(-1.0f, 1.0f, -1.0f);
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-
-    // Right face (x = 1.0f)
-    glColor3f(1.0f, 0.0f, 1.0f); // Magenta
-    glVertex3f(1.0f, 1.0f, -1.0f);
-    glVertex3f(1.0f, 1.0f, 1.0f);
-    glVertex3f(1.0f, -1.0f, 1.0f);
-    glVertex3f(1.0f, -1.0f, -1.0f);
-    glEnd(); // End of drawing color-cube
-
-    // Render a pyramid consists of 4 triangles
-    glPopMatrix(); // Reset the model-view matrix
-}
-void drawColorPyramid()
-{
-    // Render a pyramid consists of 4 triangles
-    glPushMatrix(); // Reset the model-view matrix
-
-    glTranslatef(-1.5f, 0.0f, -6.0f); // Move left and into the screen
-
-    glBegin(GL_TRIANGLES); // Begin drawing the pyramid with 4 triangles
-    // Front
-    glColor3f(1.0f, 0.0f, 0.0f); // Red
-    glVertex3f(0.0f, 1.0f, 0.0f);
-    glColor3f(0.0f, 1.0f, 0.0f); // Green
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-    glColor3f(0.0f, 0.0f, 1.0f); // Blue
-    glVertex3f(1.0f, -1.0f, 1.0f);
-
-    // Right
-    glColor3f(1.0f, 0.0f, 0.0f); // Red
-    glVertex3f(0.0f, 1.0f, 0.0f);
-    glColor3f(0.0f, 0.0f, 1.0f); // Blue
-    glVertex3f(1.0f, -1.0f, 1.0f);
-    glColor3f(0.0f, 1.0f, 0.0f); // Green
-    glVertex3f(1.0f, -1.0f, -1.0f);
-
-    // Back
-    glColor3f(1.0f, 0.0f, 0.0f); // Red
-    glVertex3f(0.0f, 1.0f, 0.0f);
-    glColor3f(0.0f, 1.0f, 0.0f); // Green
-    glVertex3f(1.0f, -1.0f, -1.0f);
-    glColor3f(0.0f, 0.0f, 1.0f); // Blue
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-
-    // Left
-    glColor3f(1.0f, 0.0f, 0.0f); // Red
-    glVertex3f(0.0f, 1.0f, 0.0f);
-    glColor3f(0.0f, 0.0f, 1.0f); // Blue
-    glVertex3f(-1.0f, -1.0f, -1.0f);
-    glColor3f(0.0f, 1.0f, 0.0f); // Green
-    glVertex3f(-1.0f, -1.0f, 1.0f);
-    glEnd(); // Done drawing the pyramid
-
-    glPopMatrix(); // Reset the model-view matrix
-}
-
 #include <GL/glut.h> // or appropriate OpenGL header
+#define M_PI 3.14159265358979323846
 
 void drawCube(const Cube &cube)
 {
@@ -116,12 +17,6 @@ void drawCube(const Cube &cube)
     vertices[5] = vertices[1] + vec3(0.0f, cube.side, 0.0f);
     vertices[6] = vertices[2] + vec3(0.0f, cube.side, 0.0f);
     vertices[7] = vertices[3] + vec3(0.0f, cube.side, 0.0f);
-    std::cout << "Vertices: " << std::endl;
-    for (int i = 0; i < 8; i++)
-    {
-        std::cout << vertices[i].x << " " << vertices[i].y << " " << vertices[i].z << std::endl;
-    }
-
     // Draw the cube
     glBegin(GL_QUADS);
     // Bottom face
@@ -173,8 +68,6 @@ void drawCube(const Cube &cube)
 
     glPopMatrix();
 }
-
-#define M_PI 3.14159265358979323846
 
 void drawSphere(const Sphere &sphere, int numSlices, int numStacks)
 {
@@ -274,10 +167,15 @@ void drawCheckerBoard()
 {
     glPushMatrix();
     // draw a plane that is xz plane and has alternating color
+    GLfloat xLimitLow = (eye.x - 20 * checkerboardWidth)/checkerboardWidth;
+    GLfloat xLimitHigh = (eye.x + 20 * checkerboardWidth)/checkerboardWidth;
+    GLfloat zLimitLow = (eye.z - 20 * checkerboardWidth)/checkerboardWidth;
+    GLfloat zLimitHigh = (eye.z + 20 * checkerboardWidth)/checkerboardWidth;
+
     glBegin(GL_QUADS);
-    for (int i = -100; i < 100; i++)
+    for (int i = xLimitLow ; i < xLimitHigh ; i++)
     {
-        for (int j = -100; j < 100; j++)
+        for (int j = zLimitLow; j < zLimitHigh; j++)
         {
             if ((i + j) % 2 == 0)
             {

@@ -12,17 +12,33 @@ void keyboard(unsigned char key, int x, int y)
         eye = eye + forward * cameraSpeed;
         lookAt = lookAt + forward * cameraSpeed;
         break;
+    case 'W':
+        eye = eye + forward * cameraSpeed * 10.0f;
+        lookAt = lookAt + forward * cameraSpeed * 10.0f;
+        break;
     case 's': // Move camera backward
         eye = eye - forward * cameraSpeed;
         lookAt = lookAt - forward * cameraSpeed;
+        break;
+    case 'S':
+        eye = eye - forward * cameraSpeed * 10.0f;
+        lookAt = lookAt - forward * cameraSpeed * 10.0f;
         break;
     case 'a': // Move camera left
         eye = eye - right * cameraSpeed;
         lookAt = lookAt - right * cameraSpeed;
         break;
+    case 'A': // Move camera left
+        eye = eye - right * cameraSpeed * 10.0f;
+        lookAt = lookAt - right * cameraSpeed * 10.0f;
+        break;
     case 'd': // Move camera right
         eye = eye + right * cameraSpeed;
         lookAt = lookAt + right * cameraSpeed;
+        break;
+    case 'D': // Move camera right
+        eye = eye + right * cameraSpeed * 10.0f;
+        lookAt = lookAt + right * cameraSpeed * 10.0f;
         break;
     case ' ': // Move camera up
         eye = eye + up.normalize() * cameraSpeed;
@@ -75,6 +91,5 @@ void mouse(int x, int y)
     forward = rodrigues_rotation(forward, right, -deltaY * sensitivity);
     lookAt = eye + forward;
 
-
     glutPostRedisplay(); // Trigger a repaint
-}   
+}
