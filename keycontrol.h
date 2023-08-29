@@ -4,7 +4,7 @@ void keyboard(unsigned char key, int x, int y)
 {
     vec3 forward = (lookAt - eye).normalize();
     vec3 right = forward.cross(up).normalize();
-    GLfloat cameraSpeed = 0.1f;
+    GLfloat cameraSpeed = 1.0f;
     GLfloat cameraTiltSpeed = 0.1f;
     switch (key)
     {

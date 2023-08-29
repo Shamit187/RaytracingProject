@@ -1,6 +1,7 @@
 #include "globalVariables.h"
 #include "keycontrol.h"
 #include "display.h"
+#include "parser.h"
 
 /* Initialize OpenGL Graphics */
 void initGL()
@@ -31,12 +32,13 @@ void reshape(GLsizei width, GLsizei height)
     glMatrixMode(GL_PROJECTION); // To operate on the Projection matrix
     glLoadIdentity();            // Reset
     // Enable perspective projection with fovy, aspect, zNear and zFar
-    gluPerspective(45.0f, aspect, 0.1f, 100.0f);
+    gluPerspective(fovY, aspect, nearPlane, farPlane);
 }
 
 /* Main function: GLUT runs as a console application starting at main() */
 int main(int argc, char **argv)
 {
+    parseSceneFile("description.txt");
     glutInit(&argc, argv);            // Initialize GLUT
     glutInitDisplayMode(GLUT_DOUBLE); // Enable double buffered mode
     glutInitWindowSize(640, 480);     // Set the window's initial width & height

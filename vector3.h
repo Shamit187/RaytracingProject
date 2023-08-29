@@ -75,4 +75,5 @@ vec3 rodrigues_rotation(const vec3 &v, const vec3 &k, GLfloat theta)
     return rotated_v;
 }
 
+
 #endif
