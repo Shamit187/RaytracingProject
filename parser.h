@@ -34,7 +34,7 @@ bool parseSceneFile(const std::string &filename)
 
         if (objectType == "sphere")
         {
-            float x, y, z, radius;
+            double x, y, z, radius;
             inputFile >> x >> y >> z >> radius;
 
             Material material;
@@ -52,9 +52,9 @@ bool parseSceneFile(const std::string &filename)
         }
         else if (objectType == "pyramid")
         {
-            float x, y, z;
+            double x, y, z;
             inputFile >> x >> y >> z;
-            float width, height;
+            double width, height;
             inputFile >> width >> height;
 
             Material material;
@@ -82,7 +82,7 @@ bool parseSceneFile(const std::string &filename)
             vec3 topPoint = pyramid.lowestPoint + vec3(0.0f, pyramid.height, 0.0f);
 
             // Calculate normal of bottom face
-            vec3 normal = (vertices[1] - vertices[0]).cross(vertices[2] - vertices[0]).normalize();
+            vec3 normal = vec3({0.0f, -1.0f, 0.0f});
 
             // Calculate normal of side face 1
             vec3 normal1 = (vertices[0] - topPoint).cross(vertices[1] - topPoint).normalize();
@@ -104,9 +104,9 @@ bool parseSceneFile(const std::string &filename)
         }
         else if (objectType == "cube")
         {
-            float x, y, z;
+            double x, y, z;
             inputFile >> x >> y >> z;
-            float side;
+            double side;
             inputFile >> side;
 
             Material material;
@@ -165,7 +165,7 @@ bool parseSceneFile(const std::string &filename)
 
     for (int i = 0; i < numberOfNormalLight; i++)
     {
-        float x, y, z, falloff;
+        double x, y, z, falloff;
         inputFile >> x >> y >> z >> falloff;
 
         normalLight light;
@@ -189,9 +189,9 @@ bool parseSceneFile(const std::string &filename)
 
     for (int i = 0; i < numberOfSpotLight; i++)
     {
-        float x, y, z, falloff;
+        double x, y, z, falloff;
         inputFile >> x >> y >> z >> falloff;
-        float dirX, dirY, dirZ, cutoff;
+        double dirX, dirY, dirZ, cutoff;
         inputFile >> dirX >> dirY >> dirZ >> cutoff;
 
         spotLight light;

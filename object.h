@@ -3,9 +3,10 @@
 
 #include "vector3.h"
 
+
 struct Color
 {
-    float r, g, b;
+    double r, g, b;
 
     Color()
     {
@@ -14,7 +15,7 @@ struct Color
         this->b = 0.0f;
     } // Default Constructor
 
-    Color(float r, float g, float b)
+    Color(double r, double g, double b)
     {
         this->r = r;
         this->g = g;
@@ -31,7 +32,7 @@ struct Color
         return Color(r * c.r, g * c.g, b * c.b);
     }
 
-    Color operator*(float f) const
+    Color operator*(double f) const
     {
         return Color(r * f, g * f, b * f);
     }
@@ -40,7 +41,7 @@ struct Color
 struct Material
 {
     Color color;
-    float ambient, diffuse, specular, reflection;
+    double ambient, diffuse, specular, reflection;
     int shininess;
 
     Material() {
@@ -56,7 +57,7 @@ struct Sphere
 {
     int id;
     vec3 center;
-    float radius;
+    double radius;
     Color color;
     Material material;
 
@@ -67,7 +68,7 @@ struct Sphere
         this->color = Color(0.0f, 0.0f, 0.0f);
     } // Default Constructor
 
-    Sphere(vec3 center, float radius)
+    Sphere(vec3 center, double radius)
     {
         this->center = center;
         this->radius = radius;
@@ -78,7 +79,7 @@ struct Pyramid
 {
     int id;
     vec3 lowestPoint;
-    float width, height;
+    double width, height;
     Material material;
 
     Pyramid()
@@ -88,7 +89,7 @@ struct Pyramid
         this->height = 0.0f;
     } // Default Constructor
 
-    Pyramid(vec3 lowestPoint, float width, float height)
+    Pyramid(vec3 lowestPoint, double width, double height)
     {
         this->lowestPoint = lowestPoint;
         this->width = width;
@@ -101,7 +102,7 @@ struct Cube
 {
     int id;
     vec3 bottomLowerLeftPoint ;
-    float side;
+    double side;
     Material material;
 
     Cube()
@@ -110,7 +111,7 @@ struct Cube
         this->side = 0.0f;
     } // Default Constructor
 
-    Cube(vec3 bottomLowerLeftPoint, float side)
+    Cube(vec3 bottomLowerLeftPoint, double side)
     {
         this->bottomLowerLeftPoint = bottomLowerLeftPoint;
         this->side = side;
@@ -177,18 +178,18 @@ struct Triangle
 struct normalLight
 {
     vec3 position;
-    float falloff;
-    float intensity;
+    double falloff;
+    double intensity;
     Color color;
 };
 
 struct spotLight
 {
     vec3 position;
-    float falloff;
+    double falloff;
     vec3 direction;
-    float cutoff;
-    float intensity;
+    double cutoff;
+    double intensity;
     Color color;
 };
 
@@ -197,10 +198,10 @@ enum lightType {NORMAL_LIGHT, SPOT_LIGHT};
 struct Light{
     lightType type;
     vec3 position;
-    float falloff;
+    double falloff;
     vec3 direction;
-    float cutoff;
-    float intensity;
+    double cutoff;
+    double intensity;
     Color color;
 };
 

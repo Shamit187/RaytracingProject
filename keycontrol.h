@@ -8,8 +8,8 @@ void keyboard(unsigned char key, int x, int y)
 {
     vec3 forward = (lookAt - eye).normalize();
     vec3 right = forward.cross(up).normalize();
-    GLfloat cameraSpeed = 1.0f;
-    GLfloat cameraTiltSpeed = 0.1f;
+    GLdouble cameraSpeed = 1.0f;
+    GLdouble cameraTiltSpeed = 0.1f;
     switch (key)
     {
     case 'w': // Move camera forward
@@ -81,7 +81,7 @@ void keyboard(unsigned char key, int x, int y)
 
 void mouse(int x, int y)
 {
-    const float sensitivity = 0.05f;
+    const double sensitivity = 0.05f;
     int deltaX = x - prevMouseX;
     int deltaY = y - prevMouseY;
     prevMouseX = x;

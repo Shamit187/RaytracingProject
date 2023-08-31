@@ -13,7 +13,7 @@ void parseInputFile() {
 
     //read checkerboard width
     inputFile >> checkerboardWidth;
-    inputFile >> ambientCoeff >> diffuseCoeff >> reflectionCoeff;
+    inputFile >> checkerboardAmbientCoeff >> checkerboardDiffuseCoeff >> checkerboardReflectionCoeff;
 
     inputFile.close();
 }

@@ -12,14 +12,14 @@
 #include <chrono>
 #include <fstream>
 
-const Color ambientColor = Color(0.0f, 0.0f, 0.0f);
+Color rayCast(const Ray &ray, const int iterationDepth);
 std::ofstream logFile("log.txt");
 
 bool lightVisible(const vec3 &point, const vec3 &lightPosition, const int id)
 {
     Ray ray = Ray(point, (lightPosition - point).normalize());
     Intersection intersection;
-    GLfloat depth = (lightPosition - point).length();
+    GLdouble depth = (lightPosition - point).length();
     for (auto sphere : spheres)
     {
         if (sphere.id == id)
@@ -53,18 +53,62 @@ bool lightVisible(const vec3 &point, const vec3 &lightPosition, const int id)
     return true;
 }
 
-Color raycast(const Ray &ray, const int iterationDeapth)
+Color lightInteraction(const Ray &originalRay, const Intersection &intersection, const int iterationDepth, const Material &material, const int id)
 {
-    if (iterationDeapth == 0)
+    auto tempColor = Color(0.0f, 0.0f, 0.0f);
+    double lambert = 0, phong = 0;
+
+    // check if lights are visible
+    Ray reflectedRay;
+    float e = 0.001;
+    
+    reflectedRay.direction = (originalRay.direction + intersection.normal * 2).normalize();
+    reflectedRay.origin = intersection.point + reflectedRay.direction * e;
+    for (auto light : lights)
+    {
+        // check if light direction is visible from plane
+        if (intersection.normal.dot(light.position - intersection.point) < 0)
+            continue;
+
+        // check if angle with light is less than cutoff
+        auto lightDirection = (light.position - intersection.point).normalize();
+        // cutoff degree to radian
+        auto angle = light.cutoff * 3.14159265358979323846 / 180.0f;
+        if (lightDirection.dot(-light.direction.normalize()) < cos(angle) && light.type == SPOT_LIGHT)
+            continue;
+
+        if (!lightVisible(intersection.point, light.position, id))
+            continue;
+
+        auto normal = intersection.normal.normalize();
+        auto lightDistance = (light.position - intersection.point).length();
+        auto scalingFactor = exp(-lightDistance * lightDistance * light.falloff);
+
+        lambert += lightDirection.dot(normal) * scalingFactor;
+
+        phong += pow(reflectedRay.direction.dot(lightDirection), material.shininess) * scalingFactor;   
+    }
+    tempColor = material.color * material.diffuse * lambert + 
+                material.color * material.specular * phong + 
+                material.color * material.ambient + 
+                rayCast(reflectedRay, iterationDepth - 1) * material.reflection;
+
+    return tempColor;
+}
+
+Color rayCast(const Ray &ray, const int iterationDepth)
+{
+    if (iterationDepth == 0)
         return Color(0.0f, 0.0f, 0.0f);
 
     // fong model for lighting
-    GLfloat depth = farPlane;
-    GLfloat lambert = 0, phong = 0;
+    GLdouble depth = farPlane;
+    GLdouble lambert = 0, phong = 0;
     Color color = Color(0.0f, 0.0f, 0.0f);
     Intersection intersection;
     Color tempColor = Color(0.0f, 0.0f, 0.0f);
     Material material;
+    int id;
 
     // check for sphere intersections
 
@@ -77,48 +121,15 @@ Color raycast(const Ray &ray, const int iterationDeapth)
         if ((intersection.point - ray.origin).length() > depth)
             continue;
         // material properties for sphere
-        material = sphere.material;
-        tempColor = Color(0.0f, 0.0f, 0.0f);
-        lambert = 0, phong = 0;
+        id = sphere.id;
 
         // check if lights are visible
 
-        for( auto light : lights )
-        {
-            // check if light direction is visible from plane
-            if (intersection.normal.dot(light.position - intersection.point) < 0)
-                continue;
-
-            // check if angle with light is less than cutoff
-            auto lightDirection = (light.position - intersection.point).normalize();
-            // cutoff degree to radian
-            auto angle = light.cutoff * 3.14159265358979323846 / 180.0f;
-            if (lightDirection.dot(-light.direction.normalize()) < cos(angle) && light.type == SPOT_LIGHT)
-                continue;
-            
-            if (!lightVisible(intersection.point, light.position, sphere.id))
-                continue;
-
-            auto normal = intersection.normal.normalize();
-            auto lightDistance = (light.position - intersection.point).length();
-            auto scalingFactor = exp(-lightDistance * lightDistance * light.falloff);
-            auto lightIntensity = light.intensity * scalingFactor;
-
-            lambert += std::max(0.0f, normal.dot(lightDirection)) * lightIntensity;
-
-            auto reflectedRay = (normal * 2.0f * normal.dot(lightDirection) - lightDirection).normalize();
-            phong += pow(std::max(0.0f, reflectedRay.dot(ray.direction)), material.shininess) * lightIntensity;
-
-            tempColor = tempColor + light.color * material.color * material.diffuse * lambert + light.color * material.color * material.specular * phong;
-        }
-
-
         depth = (intersection.point - ray.origin).length();
-        color = tempColor;
+        color = lightInteraction(ray, intersection, iterationDepth, sphere.material, sphere.id);
     }
 
     // check for triangle intersections
-    /*
     for (auto triangle : triangles)
     {
         intersection = ray.intersect(triangle);
@@ -127,70 +138,12 @@ Color raycast(const Ray &ray, const int iterationDeapth)
         if ((intersection.point - ray.origin).length() > depth)
             continue;
 
-        // material properties for triangle
-        material = triangle.material;
-
-        // check if lights are visible
-        lambert = 0, phong = 0;
-
-        for (auto normalLight : normalLights)
-        {
-            // check if light direction is visible from plane
-            if (intersection.normal.dot(normalLight.position - intersection.point) < 0)
-                continue;
-
-            // check if light is visible from triangle
-            if (!checkLightVisibility(intersection.point, normalLight.position, triangle.id))
-                continue;
-
-            auto lightDirection = (normalLight.position - intersection.point).normalize();
-            auto normal = intersection.normal.normalize();
-            auto lightDistance = (normalLight.position - intersection.point).length();
-            auto scalingFactor = exp(-lightDistance * lightDistance * normalLight.falloff);
-            auto lightIntensity = normalLight.intensity * scalingFactor;
-
-            lambert += std::max(0.0f, normal.dot(lightDirection)) * lightIntensity;
-            auto reflectedRay = (normal * 2.0f * normal.dot(lightDirection) - lightDirection).normalize();
-            phong += pow(std::max(0.0f, reflectedRay.dot(ray.direction)), material.shininess) * lightIntensity;
-        }
-
-        for (auto spotLight : spotLights)
-        {
-            // check if light direction is visible from plane
-            if (intersection.normal.dot(spotLight.position - intersection.point) < 0)
-                continue;
-
-            // check if light is visible from triangle
-            if (!checkLightVisibility(intersection.point, spotLight.position, triangle.id))
-                continue;
-            // check cutoff
-            auto lightDirection = (spotLight.position - intersection.point).normalize();
-            // check if angle with light is less than cutoff
-            if (lightDirection.dot(spotLight.direction) < cos(spotLight.cutoff))
-                continue;
-            auto normal = intersection.normal.normalize();
-            auto lightDistance = (spotLight.position - intersection.point).length();
-            auto scalingFactor = exp(-lightDistance * lightDistance * spotLight.falloff);
-            auto lightIntensity = spotLight.intensity * scalingFactor;
-
-            lambert += std::max(0.0f, normal.dot(lightDirection)) * lightIntensity;
-            auto reflectedRay = (normal * 2.0f * normal.dot(lightDirection) - lightDirection).normalize();
-            phong += pow(std::max(0.0f, reflectedRay.dot(ray.direction)), material.shininess) * lightIntensity;
-        }
-        tempColor = Color(0.0f, 0.0f, 0.0f);
-        tempColor = tempColor + ambientColor * material.ambient + material.color * material.diffuse * lambert + material.color * material.specular * phong;
-        // if distance is less than depth, update depth and color
-        if ((intersection.point - ray.origin).length() < depth)
-        {
-            depth = (intersection.point - ray.origin).length();
-            color = tempColor;
-        }
+        depth = (intersection.point - ray.origin).length();
+        color = lightInteraction(ray, intersection, iterationDepth, triangle.material, triangle.id);
     }
 
-    */
-
     // check for quad intersections
-    /*
+
     for (auto quad : quads)
     {
         intersection = ray.intersect(quad);
@@ -199,67 +152,10 @@ Color raycast(const Ray &ray, const int iterationDeapth)
         if ((intersection.point - ray.origin).length() > depth)
             continue;
 
-        // material properties for quad
-        material = quad.material;
-
-        // check if lights are visible
-        lambert = 0, phong = 0;
-
-        for (auto normalLight : normalLights)
-        {
-            // check if light direction is visible from plane
-            if (intersection.normal.dot(normalLight.position - intersection.point) < 0)
-                continue;
-
-            // check if light is visible from quad
-            if (!checkLightVisibility(intersection.point, normalLight.position, quad.id))
-                continue;
-
-            auto lightDirection = (normalLight.position - intersection.point).normalize();
-            auto normal = intersection.normal.normalize();
-            auto lightDistance = (normalLight.position - intersection.point).length();
-            auto scalingFactor = exp(-lightDistance * lightDistance * normalLight.falloff);
-            auto lightIntensity = normalLight.intensity * scalingFactor;
-
-            lambert += std::max(0.0f, normal.dot(lightDirection)) * lightIntensity;
-            auto reflectedRay = (normal * 2.0f * normal.dot(lightDirection) - lightDirection).normalize();
-            phong += pow(std::max(0.0f, reflectedRay.dot(ray.direction)), material.shininess) * lightIntensity;
-        }
-
-        for (auto spotLight : spotLights)
-        {
-            // check if light direction is visible from plane
-            if (intersection.normal.dot(spotLight.position - intersection.point) < 0)
-                continue;
-
-            // check if light is visible from quad
-            if (!checkLightVisibility(intersection.point, spotLight.position, quad.id))
-                continue;
-            // check cutoff
-            auto lightDirection = (spotLight.position - intersection.point).normalize();
-            // check if angle with light is less than cutoff
-            if (lightDirection.dot(spotLight.direction) < cos(spotLight.cutoff))
-                continue;
-            auto normal = intersection.normal.normalize();
-            auto lightDistance = (spotLight.position - intersection.point).length();
-            auto scalingFactor = exp(-lightDistance * lightDistance * spotLight.falloff);
-            auto lightIntensity = spotLight.intensity * scalingFactor;
-
-            lambert += std::max(0.0f, normal.dot(lightDirection)) * lightIntensity;
-            auto reflectedRay = (normal * 2.0f * normal.dot(lightDirection) - lightDirection).normalize();
-            phong += pow(std::max(0.0f, reflectedRay.dot(ray.direction)), material.shininess) * lightIntensity;
-        }
-        tempColor = Color(0.0f, 0.0f, 0.0f);
-        tempColor = tempColor + ambientColor * material.ambient + material.color * material.diffuse * lambert + material.color * material.specular * phong;
         // if distance is less than depth, update depth and color
-        if ((intersection.point - ray.origin).length() < depth)
-        {
-            depth = (intersection.point - ray.origin).length();
-            color = tempColor;
-        }
+        depth = (intersection.point - ray.origin).length();
+        color = lightInteraction(ray, intersection, iterationDepth, quad.material, quad.id);
     }
-
-    */
 
     // check for checkerboard intersection
     for (int i = 0; i < 1; i++)
@@ -276,43 +172,12 @@ Color raycast(const Ray &ray, const int iterationDeapth)
         material.ambient = checkerboardAmbientCoeff;
         material.diffuse = checkerboardDiffuseCoeff;
         material.reflection = checkerboardReflectionCoeff;
-        material.color = ((int)(intersection.point.x / checkerboardWidth) + (int)(intersection.point.z / checkerboardWidth)) % 2 == 0 ? Color(1.0f, 1.0f, 1.0f) : Color(1.0f, 1.0f, 1.0f);
+        material.color = ((int)(intersection.point.x / checkerboardWidth) + (int)(intersection.point.z / checkerboardWidth)) % 2 == 0 ? Color(0.0f, 0.0f, 0.0f) : Color(1.0f, 1.0f, 1.0f);
         material.specular = 0.0f;
         material.shininess = 0;
-        tempColor = Color(0.0f, 0.0f, 0.0f);
-        lambert = 0, phong = 0;
-
-        // check if lights are visible
-
-        for (auto light : lights)
-        {
-            // check if light direction is visible from plane
-            if (intersection.normal.dot(light.position - intersection.point) < 0)
-                continue;
-
-            // check if angle with light is less than cutoff
-            auto lightDirection = (light.position - intersection.point).normalize();
-            // cutoff degree to radian
-            auto angle = light.cutoff * 3.14159265358979323846 / 180.0f;
-            if (lightDirection.dot(-light.direction.normalize()) < cos(angle) && light.type == SPOT_LIGHT)
-                continue;
-
-            if (!lightVisible(intersection.point, light.position, -1))
-                continue;
-
-            auto normal = intersection.normal.normalize();
-            auto lightDistance = (light.position - intersection.point).length();
-            auto scalingFactor = exp(-lightDistance * lightDistance * light.falloff);
-            auto lightIntensity = light.intensity * scalingFactor;
-
-            lambert += std::max(0.0f, normal.dot(lightDirection)) * lightIntensity;
-            auto reflectedRay = (normal * 2.0f * normal.dot(lightDirection) - lightDirection).normalize();
-            phong += pow(std::max(0.0f, reflectedRay.dot(ray.direction)), material.shininess) * lightIntensity;
-            tempColor = tempColor + light.color * material.color * material.diffuse * lambert + light.color * material.color * material.specular * phong;
-        }
 
         depth = (intersection.point - ray.origin).length();
-        color = tempColor;
+        color = lightInteraction(ray, intersection, iterationDepth, material, -1);
     }
 
     return color;
@@ -334,7 +199,7 @@ void startRayTrace()
     {
         int row = (int)(i / numPixels);
         int col = numPixels - (int)(i % numPixels) - 1;
-        colorBuffer[row][col] = raycast(generatedRay[i], 1);
+        colorBuffer[row][col] = rayCast(generatedRay[i], 5);
     }
     end = std::chrono::high_resolution_clock::now();
     std::cout << "Intersection Calculation Complete. Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";

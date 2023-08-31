@@ -6,11 +6,11 @@
 
 struct vec3
 {
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
+    GLdouble x;
+    GLdouble y;
+    GLdouble z;
 
-    vec3(GLfloat x, GLfloat y, GLfloat z)
+    vec3(GLdouble x, GLdouble y, GLdouble z)
     {
         this->x = x;
         this->y = y;
@@ -34,17 +34,17 @@ struct vec3
         return vec3(this->x - v.x, this->y - v.y, this->z - v.z);
     }
 
-    vec3 operator*(const GLfloat &s) const
+    vec3 operator*(const GLdouble &s) const
     {
         return vec3(this->x * s, this->y * s, this->z * s);
     }
 
-    vec3 operator/(const GLfloat &s) const
+    vec3 operator/(const GLdouble &s) const
     {
         return vec3(this->x / s, this->y / s, this->z / s);
     }
 
-    GLfloat dot(const vec3 &v) const
+    GLdouble dot(const vec3 &v) const
     {
         return this->x * v.x + this->y * v.y + this->z * v.z;
     }
@@ -56,14 +56,14 @@ struct vec3
                     this->x * v.y - this->y * v.x);
     }
 
-    GLfloat length() const
+    GLdouble length() const
     {
         return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
     }
 
     vec3 normalize() const
     {
-        GLfloat len = this->length();
+        GLdouble len = this->length();
         return vec3(this->x / len, this->y / len, this->z / len);
     }
 
@@ -74,10 +74,10 @@ struct vec3
 };
 
 // Function to rotate a vector using the Rodrigues' rotation formula
-vec3 rodrigues_rotation(const vec3 &v, const vec3 &k, GLfloat theta)
+vec3 rodrigues_rotation(const vec3 &v, const vec3 &k, GLdouble theta)
 {
-    GLfloat cos_theta = cos(theta);
-    GLfloat sin_theta = sin(theta);
+    GLdouble cos_theta = cos(theta);
+    GLdouble sin_theta = sin(theta);
 
     vec3 k_cross_v = k.cross(v);
     vec3 rotated_v = v * cos_theta + k_cross_v * sin_theta + k * k.dot(v) * (1 - cos_theta);

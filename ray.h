@@ -18,13 +18,13 @@ struct Ray
 {
     vec3 origin;
     vec3 direction;
-    float time;
+    double time;
 
-    vec3 point_at_parameter(float t) const { return origin + direction * t; }
+    vec3 point_at_parameter(double t) const { return origin + direction * t; }
 
     Ray() {}
     
-    Ray(const vec3 &a, const vec3 &b, float ti = 0.0)
+    Ray(const vec3 &a, const vec3 &b, double ti = 0.0)
     {
         origin = a;
         direction = b;
@@ -34,13 +34,13 @@ struct Ray
     Intersection intersect(const Sphere &sphere) const
     {
         vec3 oc = origin - sphere.center;
-        float a = direction.dot(direction);
-        float b = oc.dot(direction);
-        float c = oc.dot(oc) - sphere.radius * sphere.radius;
-        float discriminant = b * b - a * c;
+        double a = direction.dot(direction);
+        double b = oc.dot(direction);
+        double c = oc.dot(oc) - sphere.radius * sphere.radius;
+        double discriminant = b * b - a * c;
         if (discriminant > 0)
         {
-            float temp = (-b - sqrt(discriminant)) / a;
+            double temp = (-b - sqrt(discriminant)) / a;
 
             if (temp < 0.0f)
             {
@@ -50,7 +50,7 @@ struct Ray
             {
                 Intersection result;
                 result.point = point_at_parameter(temp);
-                result.normal = (result.point - sphere.center) / sphere.radius;
+                result.normal = (result.point - sphere.center).normalize();
                 result.valid = true;
                 return result;
             }
@@ -66,7 +66,7 @@ struct Ray
         vec3 triangleNormal = (triangle.normal).normalize();
 
         // Calculate the denominator of the ray-plane intersection formula
-        float denominator = triangleNormal.dot(direction);
+        double denominator = triangleNormal.dot(direction);
 
         // Check if the ray is nearly parallel to the triangle
         if (std::abs(denominator) > 1e-6)
@@ -75,7 +75,7 @@ struct Ray
             vec3 originToTriangle = triangle.point1 - origin;
 
             // Calculate the distance from the ray's origin to the intersection point
-            float t = originToTriangle.dot(triangleNormal) / denominator;
+            double t = originToTriangle.dot(triangleNormal) / denominator;
 
             // Check if the intersection point is in front of the ray
             if (t >= 0.0f)
@@ -87,20 +87,20 @@ struct Ray
                 vec3 edge1 = triangle.point2 - triangle.point1;
                 vec3 edge2 = triangle.point3 - triangle.point1;
                 vec3 h = direction.cross(edge2);
-                float a = edge1.dot(h);
+                double a = edge1.dot(h);
 
                 if (a > -1e-6 && a < 1e-6)
                     return Intersection(); // Ray is parallel to the triangle
 
-                float f = 1.0f / a;
+                double f = 1.0f / a;
                 vec3 s = intersectionPoint - triangle.point1;
-                float u = f * s.dot(h);
+                double u = f * s.dot(h);
 
                 if (u < 0.0f || u > 1.0f)
                     return Intersection();
 
                 vec3 q = s.cross(edge1);
-                float v = f * direction.dot(q);
+                double v = f * direction.dot(q);
 
                 if (v < 0.0f || u + v > 1.0f)
                     return Intersection();
@@ -125,7 +125,7 @@ struct Ray
         vec3 quadNormal = (quad.normal).normalize();
 
         // Calculate the denominator of the ray-plane intersection formula
-        float denominator = quadNormal.dot(direction);
+        double denominator = quadNormal.dot(direction);
 
         // Check if the ray is nearly parallel to the plane
         if (std::abs(denominator) > 1e-6)
@@ -134,7 +134,7 @@ struct Ray
             vec3 originToQuad = quad.bottomLeftPoint - origin;
 
             // Calculate the distance from the ray's origin to the intersection point
-            float t = originToQuad.dot(quadNormal) / denominator;
+            double t = originToQuad.dot(quadNormal) / denominator;
 
             // Check if the intersection point is in front of the ray
             if (t >= 0.0f)
@@ -144,8 +144,8 @@ struct Ray
 
                 // Check if the intersection point is within the quad's boundaries
                 vec3 quadToIntersection = intersection.point - quad.bottomLeftPoint;
-                float dotBL = quadToIntersection.dot(quad.bottomRightPoint - quad.bottomLeftPoint);
-                float dotTL = quadToIntersection.dot(quad.topLeftPoint - quad.bottomLeftPoint);
+                double dotBL = quadToIntersection.dot(quad.bottomRightPoint - quad.bottomLeftPoint);
+                double dotTL = quadToIntersection.dot(quad.topLeftPoint - quad.bottomLeftPoint);
 
                 if (dotBL >= 0.0f && dotBL <= (quad.bottomRightPoint - quad.bottomLeftPoint).dot(quad.bottomRightPoint - quad.bottomLeftPoint) &&
                     dotTL >= 0.0f && dotTL <= (quad.topLeftPoint - quad.bottomLeftPoint).dot(quad.topLeftPoint - quad.bottomLeftPoint))
@@ -167,7 +167,7 @@ struct Ray
         // checker board is in xz plane
         // from origin check if the ray intersects the plane in front of it
         if(direction.y < 0.0f){
-            float t = -origin.y / direction.y;
+            double t = -origin.y / direction.y;
             if(t > 0.0f){
                 intersection.point = origin + direction * t;
                 intersection.normal = vec3(0.0f, 1.0f, 0.0f);
@@ -179,14 +179,14 @@ struct Ray
     }
 };
 
-std::vector<Ray> generateRays(const float fovY, const float aspectRatio, const vec3 &eye, const vec3 &lookAt, const vec3 &up, const int numPixelsX, const int numPixelsY, const float nearPlane)
+std::vector<Ray> generateRays(const double fovY, const double aspectRatio, const vec3 &eye, const vec3 &lookAt, const vec3 &up, const int numPixelsX, const int numPixelsY, const double nearPlane)
 {
     std::vector<Ray> rays;
 
     for(int row = 0; row < numPixelsX; row++){
         for(int col = 0; col < numPixelsY; col++){
-            float upAmount = (float)col / (float)numPixelsY;
-            float rightAmount = (float)row / (float)numPixelsX;
+            double upAmount = (double)col / (double)numPixelsY;
+            double rightAmount = (double)row / (double)numPixelsX;
 
             vec3 forward = (lookAt - eye).normalize();
             vec3 right = forward.cross(up).normalize();

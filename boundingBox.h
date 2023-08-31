@@ -12,15 +12,15 @@ struct BoundingBox
     vec3 farPlane[4];
 };
 
-BoundingBox generateBoundingBox(const float &nearPlaneDist, const float &farPlaneDist, const float &fovY, const float &aspectRatio, const vec3 &eye, const vec3 &lookAt, const vec3 &up)
+BoundingBox generateBoundingBox(const double &nearPlaneDist, const double &farPlaneDist, const double &fovY, const double &aspectRatio, const vec3 &eye, const vec3 &lookAt, const vec3 &up)
 {
     BoundingBox boundingBox;
 
     // Calculate the dimensions of the near and far planes
-    float halfHeightNear = tan(fovY / 2.0f) * nearPlaneDist;
-    float halfWidthNear = halfHeightNear * aspectRatio;
-    float halfHeightFar = tan(fovY / 2.0f) * farPlaneDist;
-    float halfWidthFar = halfHeightFar * aspectRatio;
+    double halfHeightNear = tan(fovY / 2.0f) * nearPlaneDist;
+    double halfWidthNear = halfHeightNear * aspectRatio;
+    double halfHeightFar = tan(fovY / 2.0f) * farPlaneDist;
+    double halfWidthFar = halfHeightFar * aspectRatio;
 
     // Calculate the camera basis vectors
     vec3 forward = (lookAt - eye).normalize();

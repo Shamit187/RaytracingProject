@@ -76,20 +76,20 @@ void drawSphere(const Sphere &sphere, int numSlices, int numStacks)
 {
     glPushMatrix();
     // Draw the sphere
-    float phiStep = M_PI / numStacks;
-    float thetaStep = 2.0f * M_PI / numSlices;
+    double phiStep = M_PI / numStacks;
+    double thetaStep = 2.0f * M_PI / numSlices;
 
     glColor3f(sphere.material.color.r, sphere.material.color.g, sphere.material.color.b);
 
     for (int i = 0; i < numStacks; ++i)
     {
-        float phi = i * phiStep;
-        float nextPhi = (i + 1) * phiStep;
+        double phi = i * phiStep;
+        double nextPhi = (i + 1) * phiStep;
 
         glBegin(GL_QUAD_STRIP);
         for (int j = 0; j <= numSlices; ++j)
         {
-            float theta = j * thetaStep;
+            double theta = j * thetaStep;
 
             // Calculate vertex positions
             vec3 vertex1 = sphere.center + vec3(sphere.radius * sin(nextPhi) * cos(theta),
@@ -170,10 +170,10 @@ void drawCheckerBoard()
 {
     glPushMatrix();
     // draw a plane that is xz plane and has alternating color
-    GLfloat xLimitLow = (eye.x - 20 * checkerboardWidth) / checkerboardWidth;
-    GLfloat xLimitHigh = (eye.x + 20 * checkerboardWidth) / checkerboardWidth;
-    GLfloat zLimitLow = (eye.z - 20 * checkerboardWidth) / checkerboardWidth;
-    GLfloat zLimitHigh = (eye.z + 20 * checkerboardWidth) / checkerboardWidth;
+    GLdouble xLimitLow = (eye.x - 20 * checkerboardWidth) / checkerboardWidth;
+    GLdouble xLimitHigh = (eye.x + 20 * checkerboardWidth) / checkerboardWidth;
+    GLdouble zLimitLow = (eye.z - 20 * checkerboardWidth) / checkerboardWidth;
+    GLdouble zLimitHigh = (eye.z + 20 * checkerboardWidth) / checkerboardWidth;
 
     glBegin(GL_QUADS);
     for (int i = xLimitLow; i < xLimitHigh; i++)
@@ -259,7 +259,7 @@ void drawNormalLight(const normalLight &light)
 void drawSpotLight(const spotLight& light) {
     glColor3f(light.color.r, light.color.g, light.color.b);
     auto direction = light.direction.normalize();
-    GLfloat length = 5.0f;
+    GLdouble length = 5.0f;
     glBegin(GL_LINES);
     glVertex3f(light.position.x, light.position.y, light.position.z);
     glVertex3f(light.position.x + length * direction.x, light.position.y + length * direction.y, light.position.z + length * direction.z);

@@ -24,7 +24,7 @@ void reshape(GLsizei width, GLsizei height)
     // Compute aspect ratio of the new window
     if (height == 0)
         height = 1; // To prevent divide by 0
-    GLfloat aspect = (GLfloat)width / (GLfloat)height;
+    GLdouble aspect = (GLdouble)width / (GLdouble)height;
 
     // Set the viewport to cover the new window
     glViewport(0, 0, width, height);
