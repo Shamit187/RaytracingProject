@@ -13,7 +13,7 @@
 #include <fstream>
 
 const Color ambientColor = Color(0.0f, 0.0f, 0.0f);
-// std::ofstream logFile("log.txt");
+std::ofstream logFile("log.txt");
 
 bool lightVisible(const vec3 &point, const vec3 &lightPosition, const int id)
 {
@@ -305,53 +305,36 @@ Color raycast(const Ray &ray, const int iterationDeapth)
         tempColor = Color(0.0f, 0.0f, 0.0f);
 
         // check if lights are visible
-        for (auto normalLight : normalLights)
-        {
 
+        for (auto light: lights){
             // check if light direction is visible from plane
-            if (intersection.normal.dot(normalLight.position - intersection.point) < 0)
-                continue;
-
-            if(!lightVisible(intersection.point, normalLight.position, -1))
+            if (intersection.normal.dot(light.position - intersection.point) < 0)
                 continue;
             
-            auto lightDirection = (normalLight.position - intersection.point).normalize();
-            auto normal = intersection.normal.normalize();
-            auto lightDistance = (normalLight.position - intersection.point).length();
-            auto scalingFactor = exp(-lightDistance * lightDistance * normalLight.falloff);
-            auto lightIntensity = normalLight.intensity * scalingFactor;
-
-            lambert += std::max(0.0f, normal.dot(lightDirection)) * lightIntensity;
-            auto reflectedRay = (normal * 2.0f * normal.dot(lightDirection) - lightDirection).normalize();
-            phong += pow(std::max(0.0f, reflectedRay.dot(ray.direction)), material.shininess) * lightIntensity;
-            tempColor = tempColor + normalLight.color * material.color * material.diffuse * lambert + normalLight.color * material.color * material.specular * phong;
-        }
-        for (auto spotLight : spotLights)
-        {
-            // check if light direction is visible from plane
-            if (intersection.normal.dot(spotLight.position - intersection.point) < 0)
-                continue;
-
-            if(!lightVisible(intersection.point, spotLight.position, -1))
-                continue;
-
             // check if angle with light is less than cutoff
-            auto lightDirection = (spotLight.position - intersection.point).normalize();
-            if (lightDirection.dot(spotLight.direction) < cos(spotLight.cutoff))
+            auto lightDirection = (light.position - intersection.point).normalize();
+            // cutoff degree to radian
+            auto angle = light.cutoff * 3.14159265358979323846 / 180.0f;
+            if (lightDirection.dot(light.direction) < cos(angle) && light.type == SPOT_LIGHT)
                 continue;
 
+            if(!lightVisible(intersection.point, light.position, -1))
+                continue;
+            
+            if(light.type == SPOT_LIGHT)
+                logFile << "Light Visible and no cutoff\n";
+
             auto normal = intersection.normal.normalize();
-            auto lightDistance = (spotLight.position - intersection.point).length();
-            auto scalingFactor = exp(-lightDistance * lightDistance * spotLight.falloff);
-            auto lightIntensity = spotLight.intensity * scalingFactor;
+            auto lightDistance = (light.position - intersection.point).length();
+            auto scalingFactor = exp(-lightDistance * lightDistance * light.falloff);
+            auto lightIntensity = light.intensity * scalingFactor;
 
             lambert += std::max(0.0f, normal.dot(lightDirection)) * lightIntensity;
             auto reflectedRay = (normal * 2.0f * normal.dot(lightDirection) - lightDirection).normalize();
             phong += pow(std::max(0.0f, reflectedRay.dot(ray.direction)), material.shininess) * lightIntensity;
-            tempColor = tempColor + spotLight.color * material.color * material.diffuse * lambert + spotLight.color * material.color * material.specular * phong;
+            tempColor = tempColor + light.color * material.color * material.diffuse * lambert + light.color * material.color * material.specular * phong;
         }
 
-        // tempColor = tempColor + ambientColor * material.ambient + material.color * material.diffuse * lambert + material.color * material.specular * phong;
         depth = (intersection.point - ray.origin).length();
         color = tempColor;
     }

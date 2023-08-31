@@ -175,6 +175,13 @@ bool parseSceneFile(const std::string &filename)
         light.color = Color(1.0f, 1.0f, 1.0f);
 
         normalLights.push_back(light);
+        Light l;
+        l.type = NORMAL_LIGHT;
+        l.position = light.position;
+        l.falloff = light.falloff;
+        l.intensity = light.intensity;
+        l.color = light.color;
+        lights.push_back(l);
     }
 
     int numberOfSpotLight;
@@ -196,6 +203,15 @@ bool parseSceneFile(const std::string &filename)
         light.color = Color(1.0f, 1.0f, 1.0f);
 
         spotLights.push_back(light);
+        Light l;
+        l.type = SPOT_LIGHT;
+        l.position = light.position;
+        l.falloff = light.falloff;
+        l.direction = light.direction;
+        l.cutoff = light.cutoff;
+        l.intensity = light.intensity;
+        l.color = light.color;
+        lights.push_back(l);
     }
 
     return true;

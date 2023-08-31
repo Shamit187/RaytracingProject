@@ -199,12 +199,12 @@ void drawCheckerBoard()
     glPopMatrix();
 }
 
-
-void drawTriangle(const Triangle &Triangle){
+void drawTriangle(const Triangle &Triangle)
+{
     glPushMatrix();
     // Set material properties
     glColor3f(Triangle.material.color.r, Triangle.material.color.g, Triangle.material.color.b);
-    
+
     glBegin(GL_TRIANGLES);
     glVertex3f(Triangle.point1.x, Triangle.point1.y, Triangle.point1.z);
     glVertex3f(Triangle.point2.x, Triangle.point2.y, Triangle.point2.z);
@@ -214,7 +214,8 @@ void drawTriangle(const Triangle &Triangle){
     glPopMatrix();
 }
 
-void drawQuad(const Quad &quad){
+void drawQuad(const Quad &quad)
+{
     glPushMatrix();
 
     // Set material properties
@@ -244,15 +245,48 @@ void drawNormalLight(const normalLight &light)
     drawSphere(sphere, 20, 20);
 
     // draw some lines outward to show the direction of the light
-    for(int i = 0; i < 10; i++){
+    for (int i = 0; i < 10; i++)
+    {
         glBegin(GL_LINES);
         glVertex3f(light.position.x, light.position.y, light.position.z);
         glVertex3f(light.position.x + i * light.falloff * light.intensity * light.color.r, light.position.y + i * light.falloff * light.intensity * light.color.g, light.position.z + i * light.falloff * light.intensity * light.color.b);
         glEnd();
     }
 
-
     glPopMatrix();
+}
+
+void drawSpotLight(const spotLight& light) {
+    const int numSegments = 16;  // Number of segments for the base circle of the cone
+    const float coneHeight = light.falloff * light.cutoff; // Adjust as needed
+    
+    // Set the color
+    glColor3f(light.color.r, light.color.g, light.color.b);
+    
+    // Calculate the base vertices of the cone
+    vec3 baseVertices[numSegments];
+    for (int i = 0; i < numSegments; ++i) {
+        float angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(numSegments);
+        GLfloat x = light.position.x + light.direction.x * cos(angle) * light.cutoff;
+        GLfloat y = light.position.y + light.direction.y * cos(angle) * light.cutoff;
+        GLfloat z = light.position.z + light.direction.z * coneHeight;
+        baseVertices[i] = { x, y, z };
+    }
+    
+    // Draw the triangular faces of the cone
+    glBegin(GL_TRIANGLES);
+    for (int i = 0; i < numSegments; ++i) {
+        // Base triangle vertices
+        const vec3& v1 = baseVertices[i];
+        const vec3& v2 = baseVertices[(i + 1) % numSegments];
+        const vec3& apex = light.position;
+        
+        // Side triangles
+        glVertex3f(v1.x, v1.y, v1.z);
+        glVertex3f(v2.x, v2.y, v2.z);
+        glVertex3f(apex.x, apex.y, apex.z);
+    }
+    glEnd();
 }
 
 /* Handler for window-repaint event. Called back when the window first appears and
@@ -296,6 +330,10 @@ void display()
         drawNormalLight(light);
     }
 
+    for (auto light : spotLights)
+    {
+        drawSpotLight(light);
+    }
 
     glutSwapBuffers(); // Swap the front and back frame buffers (double buffering)
 }

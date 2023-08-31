@@ -55,5 +55,6 @@ std::vector<Triangle> triangles;
 /* All lights for scene */
 std::vector<normalLight> normalLights;
 std::vector<spotLight> spotLights;
+std::vector<Light> lights;
 
 #endif // GLOBAL_VARIABLES_H

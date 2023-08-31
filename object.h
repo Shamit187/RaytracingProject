@@ -192,4 +192,17 @@ struct spotLight
     Color color;
 };
 
+enum lightType {NORMAL_LIGHT, SPOT_LIGHT};
+
+struct Light{
+    lightType type;
+    vec3 position;
+    float falloff;
+    vec3 direction;
+    float cutoff;
+    float intensity;
+    Color color;
+};
+
+
 #endif // OBJECT_H
