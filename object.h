@@ -41,8 +41,7 @@ struct Color
 struct Material
 {
     Color color;
-    double ambient, diffuse, specular, reflection;
-    int shininess;
+    double ambient, diffuse, specular, reflection, refraction, shininess;
 
     Material() {
         this->color = Color(0.0f, 0.0f, 0.0f);

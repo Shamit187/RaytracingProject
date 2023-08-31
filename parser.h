@@ -39,7 +39,7 @@ bool parseSceneFile(const std::string &filename)
 
             Material material;
             inputFile >> material.color.r >> material.color.g >> material.color.b;
-            inputFile >> material.ambient >> material.diffuse >> material.specular >> material.reflection;
+            inputFile >> material.ambient >> material.diffuse >> material.specular >> material.reflection >> material.refraction;
             inputFile >> material.shininess;
 
             Sphere sphere;
@@ -59,7 +59,7 @@ bool parseSceneFile(const std::string &filename)
 
             Material material;
             inputFile >> material.color.r >> material.color.g >> material.color.b;
-            inputFile >> material.ambient >> material.diffuse >> material.specular >> material.reflection;
+            inputFile >> material.ambient >> material.diffuse >> material.specular >> material.reflection >> material.refraction;
             inputFile >> material.shininess;
 
             Pyramid pyramid;
@@ -111,7 +111,7 @@ bool parseSceneFile(const std::string &filename)
 
             Material material;
             inputFile >> material.color.r >> material.color.g >> material.color.b;
-            inputFile >> material.ambient >> material.diffuse >> material.specular >> material.reflection;
+            inputFile >> material.ambient >> material.diffuse >> material.specular >> material.reflection >> material.refraction;
             inputFile >> material.shininess;
 
             Cube cube;
@@ -135,7 +135,7 @@ bool parseSceneFile(const std::string &filename)
 
             // Calculate normal of bottom face
             vec3 normal = (vec3{0.0f, -1.0f, 0.0f}).normalize();
-            
+
             // Calculate normal of side face 1 (front)
             vec3 normal1 = (vec3{0.0f, 0.0f, 1.0f}).normalize();
 
@@ -157,6 +157,56 @@ bool parseSceneFile(const std::string &filename)
             quads.push_back(Quad{vertices[2], vertices[3], vertices[7], vertices[6], normal3, material, cube.id});
             quads.push_back(Quad{vertices[3], vertices[0], vertices[4], vertices[7], normal4, material, cube.id});
             quads.push_back(Quad{vertices[4], vertices[5], vertices[6], vertices[7], normal5, material, cube.id});
+        }
+        else if (objectType == "quad")
+        {
+            vec3 vertices[4];
+            inputFile >> vertices[0].x >> vertices[0].y >> vertices[0].z;
+            inputFile >> vertices[1].x >> vertices[1].y >> vertices[1].z;
+            inputFile >> vertices[2].x >> vertices[2].y >> vertices[2].z;
+            inputFile >> vertices[3].x >> vertices[3].y >> vertices[3].z;
+            double normalX, normalY, normalZ;
+            inputFile >> normalX >> normalY >> normalZ;
+
+            Material material;
+            inputFile >> material.color.r >> material.color.g >> material.color.b;
+            inputFile >> material.ambient >> material.diffuse >> material.specular >> material.reflection >> material.refraction;
+            inputFile >> material.shininess;
+
+            Quad quad;
+            quad.bottomLeftPoint = vertices[0];
+            quad.bottomRightPoint = vertices[1];
+            quad.topRightPoint = vertices[2];
+            quad.topLeftPoint = vertices[3];
+            quad.normal = vec3(normalX, normalY, normalZ);
+            quad.material = material;
+            quad.id = id++;
+
+            quads.push_back(quad);
+        }
+        else if (objectType == "triangle")
+        {
+            vec3 vertices[3];
+            inputFile >> vertices[0].x >> vertices[0].y >> vertices[0].z;
+            inputFile >> vertices[1].x >> vertices[1].y >> vertices[1].z;
+            inputFile >> vertices[2].x >> vertices[2].y >> vertices[2].z;
+            double normalX, normalY, normalZ;
+            inputFile >> normalX >> normalY >> normalZ;
+
+            Material material;
+            inputFile >> material.color.r >> material.color.g >> material.color.b;
+            inputFile >> material.ambient >> material.diffuse >> material.specular >> material.reflection >> material.refraction;
+            inputFile >> material.shininess;
+
+            Triangle triangle;
+            triangle.point1= vertices[0];
+            triangle.point2 = vertices[1];
+            triangle.point3 = vertices[2];
+            triangle.normal = vec3(normalX, normalY, normalZ);
+            triangle.material = material;
+            triangle.id = id++;
+
+            triangles.push_back(triangle);
         }
     }
 
