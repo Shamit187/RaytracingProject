@@ -315,7 +315,7 @@ Color raycast(const Ray &ray, const int iterationDeapth)
             auto lightDirection = (light.position - intersection.point).normalize();
             // cutoff degree to radian
             auto angle = light.cutoff * 3.14159265358979323846 / 180.0f;
-            if (lightDirection.dot(light.direction) < cos(angle) && light.type == SPOT_LIGHT)
+            if (lightDirection.dot(-light.direction) < cos(angle) && light.type == SPOT_LIGHT)
                 continue;
 
             if(!lightVisible(intersection.point, light.position, -1))

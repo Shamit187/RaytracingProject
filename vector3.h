@@ -66,6 +66,11 @@ struct vec3
         GLfloat len = this->length();
         return vec3(this->x / len, this->y / len, this->z / len);
     }
+
+    vec3 operator-() const
+    {
+        return vec3(-this->x, -this->y, -this->z);
+    }
 };
 
 // Function to rotate a vector using the Rodrigues' rotation formula
