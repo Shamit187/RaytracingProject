@@ -109,6 +109,7 @@ Color rayCast(const Ray &ray, const int iterationDepth)
     Color tempColor = Color(0.0f, 0.0f, 0.0f);
     Material material;
     int id;
+    Intersection tempIntersection;
 
     // check for sphere intersections
 
@@ -122,11 +123,10 @@ Color rayCast(const Ray &ray, const int iterationDepth)
             continue;
         // material properties for sphere
         id = sphere.id;
-
-        // check if lights are visible
-
         depth = (intersection.point - ray.origin).length();
-        color = lightInteraction(ray, intersection, iterationDepth, sphere.material, sphere.id);
+        material = sphere.material;
+        id = sphere.id;
+        tempIntersection = intersection;
     }
 
     // check for triangle intersections
@@ -139,7 +139,9 @@ Color rayCast(const Ray &ray, const int iterationDepth)
             continue;
 
         depth = (intersection.point - ray.origin).length();
-        color = lightInteraction(ray, intersection, iterationDepth, triangle.material, triangle.id);
+        material = triangle.material;
+        id = triangle.id;
+        tempIntersection = intersection;
     }
 
     // check for quad intersections
@@ -154,7 +156,9 @@ Color rayCast(const Ray &ray, const int iterationDepth)
 
         // if distance is less than depth, update depth and color
         depth = (intersection.point - ray.origin).length();
-        color = lightInteraction(ray, intersection, iterationDepth, quad.material, quad.id);
+        material = quad.material;
+        id = quad.id;
+        tempIntersection = intersection;
     }
 
     // check for checkerboard intersection
@@ -177,9 +181,11 @@ Color rayCast(const Ray &ray, const int iterationDepth)
         material.shininess = 0;
 
         depth = (intersection.point - ray.origin).length();
-        color = lightInteraction(ray, intersection, iterationDepth, material, -1);
+        id = -1;
+        tempIntersection = intersection;
     }
 
+    color = lightInteraction(ray, tempIntersection, iterationDepth, material, id);
     return color;
 }
 
@@ -199,7 +205,7 @@ void startRayTrace()
     {
         int row = (int)(i / numPixels);
         int col = numPixels - (int)(i % numPixels) - 1;
-        colorBuffer[row][col] = rayCast(generatedRay[i], 5);
+        colorBuffer[row][col] = rayCast(generatedRay[i], recursionLevel);
     }
     end = std::chrono::high_resolution_clock::now();
     std::cout << "Intersection Calculation Complete. Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms\n";
