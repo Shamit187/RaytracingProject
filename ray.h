@@ -183,32 +183,21 @@ std::vector<Ray> generateRays(const float fovY, const float aspectRatio, const v
 {
     std::vector<Ray> rays;
 
-    // Calculate the half height and width of the near plane
-    float halfHeight = std::tan(fovY * 0.5f) * nearPlane;
-    float halfWidth = halfHeight * aspectRatio;
+    for(int row = 0; row < numPixelsX; row++){
+        for(int col = 0; col < numPixelsY; col++){
+            float upAmount = (float)col / (float)numPixelsY;
+            float rightAmount = (float)row / (float)numPixelsX;
 
-    // Calculate the basis vectors for the camera coordinate system
-    vec3 w = (eye - lookAt).normalize();
-    vec3 u = up.cross(w).normalize();
-    vec3 v = w.cross(u);
+            vec3 forward = (lookAt - eye).normalize();
+            vec3 right = forward.cross(up).normalize();
 
-    // Generate rays for each pixel
-    for (int y = 0; y < numPixelsY; ++y) {
-        for (int x = 0; x < numPixelsX; ++x) {
-            // Calculate the normalized device coordinates
-            float ndcX = (2.0f * (x + 0.5f) / numPixelsX) - 1.0f;
-            float ndcY = 1.0f - (2.0f * (y + 0.5f) / numPixelsY);
-
-            // Calculate the ray direction in camera space
-            vec3 rayDirection = (u * (ndcX * halfWidth) + v * (ndcY * halfHeight) - w * nearPlane).normalize();
-
-            // Transform the ray direction to world space
-            vec3 worldRayDirection = u * rayDirection.x + v * rayDirection.y + w * rayDirection.z;
-
-            // Create a ray and add it to the vector
+            vec3 screenPosition = eye + forward + right * (2.0f * rightAmount - 1.0f) + up * (2.0f * upAmount - 1.0f);
             Ray ray;
-            ray.origin = eye + (worldRayDirection * nearPlane);
-            ray.direction = worldRayDirection;
+            ray.origin = screenPosition;
+            ray.direction = (screenPosition - eye).normalize();
+            // std::cout << "ray origin: "  << ray.origin.x << " " << ray.origin.y << " " << ray.origin.z << std::endl;
+            // std::cout << "ray direction: " << ray.direction.x << " " << ray.direction.y << " " << ray.direction.z << std::endl;
+
             rays.push_back(ray);
         }
     }
