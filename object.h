@@ -54,6 +54,7 @@ struct Material
 };
 struct Sphere
 {
+    int id;
     vec3 center;
     float radius;
     Color color;
@@ -75,6 +76,7 @@ struct Sphere
 
 struct Pyramid
 {
+    int id;
     vec3 lowestPoint;
     float width, height;
     Material material;
@@ -97,6 +99,7 @@ struct Pyramid
 
 struct Cube
 {
+    int id;
     vec3 bottomLowerLeftPoint ;
     float side;
     Material material;
@@ -116,6 +119,7 @@ struct Cube
 
 struct Quad
 {
+    int id;
     vec3 bottomLeftPoint;
     vec3 bottomRightPoint;
     vec3 topLeftPoint;
@@ -131,7 +135,7 @@ struct Quad
         this->topRightPoint = vec3(0.0f, 0.0f, 0.0f);
     } // Default Constructor
 
-    Quad(vec3 bottomLeftPoint, vec3 bottomRightPoint, vec3 topRightPoint, vec3 topLeftPoint, vec3 normal, Material material)
+    Quad(vec3 bottomLeftPoint, vec3 bottomRightPoint, vec3 topRightPoint, vec3 topLeftPoint, vec3 normal, Material material, int id)
     {
         this->bottomLeftPoint = bottomLeftPoint;
         this->bottomRightPoint = bottomRightPoint;
@@ -139,11 +143,13 @@ struct Quad
         this->topRightPoint = topRightPoint;
         this->normal = normal;
         this->material = material;
+        this->id = id;
     }
 };
 
 struct Triangle
 {
+    int id;
     vec3 point1;
     vec3 point2;
     vec3 point3;
@@ -157,13 +163,14 @@ struct Triangle
         this->point3 = vec3(0.0f, 0.0f, 0.0f);
     } // Default Constructor
 
-    Triangle(vec3 point1, vec3 point2, vec3 point3, vec3 normal, Material material)
+    Triangle(vec3 point1, vec3 point2, vec3 point3, vec3 normal, Material material, int id)
     {
         this->point1 = point1;
         this->point2 = point2;
         this->point3 = point3;
         this->normal = normal;
         this->material = material;
+        this->id = id;
     }
 };
 

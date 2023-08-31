@@ -230,6 +230,31 @@ void drawQuad(const Quad &quad){
     glPopMatrix();
 }
 
+void drawNormalLight(const normalLight &light)
+{
+    glPushMatrix();
+    // Set material properties
+    glColor3f(1.0f, 1.0f, 1.0f);
+
+    // draw a sphere of radius 1 with the center of light.position
+    Sphere sphere;
+    sphere.center = light.position;
+    sphere.radius = 5.0f;
+    sphere.material.color = Color(1.0f, 1.0f, 1.0f);
+    drawSphere(sphere, 20, 20);
+
+    // draw some lines outward to show the direction of the light
+    for(int i = 0; i < 10; i++){
+        glBegin(GL_LINES);
+        glVertex3f(light.position.x, light.position.y, light.position.z);
+        glVertex3f(light.position.x + i * light.falloff * light.intensity * light.color.r, light.position.y + i * light.falloff * light.intensity * light.color.g, light.position.z + i * light.falloff * light.intensity * light.color.b);
+        glEnd();
+    }
+
+
+    glPopMatrix();
+}
+
 /* Handler for window-repaint event. Called back when the window first appears and
    whenever the window needs to be re-painted. */
 void display()
@@ -265,6 +290,12 @@ void display()
     {
         drawQuad(quad);
     }
+
+    for (auto light : normalLights)
+    {
+        drawNormalLight(light);
+    }
+
 
     glutSwapBuffers(); // Swap the front and back frame buffers (double buffering)
 }
