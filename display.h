@@ -256,56 +256,39 @@ void drawNormalLight(const normalLight &light)
     glPopMatrix();
 }
 
-void drawCone(float apexX, float apexY, float apexZ,
-              float directionX, float directionY, float directionZ,
-              float radius)
-{
-    const int numSegments = 50;
-    const float PI = 3.14159265359;
 
-    // Normalize the direction vector
-    float length = sqrt(directionX * directionX + directionY * directionY + directionZ * directionZ);
-    directionX /= length;
-    directionY /= length;
-    directionZ /= length;
-
-    // Calculate the axis perpendicular to the direction vector
-    float axisX, axisY, axisZ;
-    if (directionX == 0 && directionZ == 0)
-    {
-        axisX = 1.0;
-        axisY = axisZ = 0.0;
+std::vector<vec3> getAllBasePoints(const vec3 &apex, const vec3 &direction, float length, float radius){
+    std::vector<vec3> basePoints;
+    std::cout << "direction: " << direction.x << " " << direction.y << " " << direction.z << std::endl;
+    vec3 directionNormalized = direction.normalize();
+    vec3 directionPerpendicular = directionNormalized.cross(vec3(0.0f, 1.0f, 0.0f)).normalize();
+    if(directionPerpendicular.length() == 0){
+        directionPerpendicular = directionNormalized.cross(vec3(1.0f, 0.0f, 0.0f)).normalize();
     }
-    else
-    {
-        axisX = -directionZ;
-        axisY = 0.0;
-        axisZ = directionX;
+    vec3 directionPerpendicular2 = directionNormalized.cross(directionPerpendicular).normalize();
+    for(float angle = 0; angle < 2 * M_PI; angle += 2 * M_PI / 30){
+        basePoints.push_back(apex + directionNormalized * length + directionPerpendicular * radius * cos(angle) + directionPerpendicular2 * radius * sin(angle));
     }
-
-    // Calculate the vertices of the cone
-    for (int i = 0; i < numSegments; ++i)
-    {
-        float theta = 2.0 * PI * static_cast<float>(i) / static_cast<float>(numSegments);
-        float x = apexX + radius * cos(theta) * axisX + radius * sin(theta) * directionX;
-        float y = apexY + radius * cos(theta) * axisY + radius * sin(theta) * directionY;
-        float z = apexZ + radius * cos(theta) * axisZ + radius * sin(theta) * directionZ;
-        glVertex3f(apexX, apexY, apexZ); // Apex of the cone
-        glVertex3f(x, y, z);             // Base of the cone
-    }
+    return basePoints;
 }
+
+
 
 void drawSpotLight(const spotLight &light)
 {
-    std::cout << "draw spot light" << std::endl;
-    std::cout << "light position: " << light.position.x << " " << light.position.y << " " << light.position.z << std::endl;
-    std::cout << "light direction: " << light.direction.x << " " << light.direction.y << " " << light.direction.z << std::endl;
+    auto basePoints = getAllBasePoints(light.position, light.direction, 5.0f, 5.0f);
+    glPushMatrix();
     glColor3f(light.color.r, light.color.g, light.color.b);
-    glBegin(GL_TRIANGLE_STRIP);
-    drawCone(light.position.x, light.position.y, light.position.z,
-             light.direction.x*10, light.direction.y*10, light.direction.z*10,
-             10.0f);
+
+    glBegin(GL_QUAD_STRIP);
+    for (int i = 0; i < basePoints.size(); i++)
+    {
+        glVertex3f(basePoints[i].x, basePoints[i].y, basePoints[i].z);
+        glVertex3f(light.position.x, light.position.y, light.position.z);
+    }
     glEnd();
+    glPopMatrix();
+    
 }
 
 /* Handler for window-repaint event. Called back when the window first appears and
