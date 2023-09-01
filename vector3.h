@@ -41,6 +41,8 @@ struct vec3
 
     vec3 operator/(const GLdouble &s) const
     {
+        if (s == 0)
+            return vec3(0.0f, 0.0f, 0.0f);
         return vec3(this->x / s, this->y / s, this->z / s);
     }
 
@@ -58,12 +60,16 @@ struct vec3
 
     GLdouble length() const
     {
+        if (this->x == 0 && this->y == 0 && this->z == 0)
+            return 0;
         return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
     }
 
     vec3 normalize() const
     {
         GLdouble len = this->length();
+        if (len == 0)
+            return vec3(0.0f, 0.0f, 0.0f);
         return vec3(this->x / len, this->y / len, this->z / len);
     }
 

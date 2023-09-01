@@ -247,7 +247,7 @@ bool parseSceneFile(const std::string &filename)
         spotLight light;
         light.position = vec3(x, y, z);
         light.falloff = falloff;
-        light.direction = vec3(dirX, dirY, dirZ);
+        light.direction = vec3(dirX - x, dirY - y, dirZ- z).normalize();
         light.cutoff = cutoff;
         light.intensity = 1.0f;
         light.color = Color(1.0f, 1.0f, 1.0f);

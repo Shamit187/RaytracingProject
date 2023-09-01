@@ -256,15 +256,56 @@ void drawNormalLight(const normalLight &light)
     glPopMatrix();
 }
 
-void drawSpotLight(const spotLight& light) {
-    glColor3f(light.color.r, light.color.g, light.color.b);
-    auto direction = light.direction.normalize();
-    GLdouble length = 5.0f;
-    glBegin(GL_LINES);
-    glVertex3f(light.position.x, light.position.y, light.position.z);
-    glVertex3f(light.position.x + length * direction.x, light.position.y + length * direction.y, light.position.z + length * direction.z);
-    glEnd();
+void drawCone(float apexX, float apexY, float apexZ,
+              float directionX, float directionY, float directionZ,
+              float radius)
+{
+    const int numSegments = 50;
+    const float PI = 3.14159265359;
 
+    // Normalize the direction vector
+    float length = sqrt(directionX * directionX + directionY * directionY + directionZ * directionZ);
+    directionX /= length;
+    directionY /= length;
+    directionZ /= length;
+
+    // Calculate the axis perpendicular to the direction vector
+    float axisX, axisY, axisZ;
+    if (directionX == 0 && directionZ == 0)
+    {
+        axisX = 1.0;
+        axisY = axisZ = 0.0;
+    }
+    else
+    {
+        axisX = -directionZ;
+        axisY = 0.0;
+        axisZ = directionX;
+    }
+
+    // Calculate the vertices of the cone
+    for (int i = 0; i < numSegments; ++i)
+    {
+        float theta = 2.0 * PI * static_cast<float>(i) / static_cast<float>(numSegments);
+        float x = apexX + radius * cos(theta) * axisX + radius * sin(theta) * directionX;
+        float y = apexY + radius * cos(theta) * axisY + radius * sin(theta) * directionY;
+        float z = apexZ + radius * cos(theta) * axisZ + radius * sin(theta) * directionZ;
+        glVertex3f(apexX, apexY, apexZ); // Apex of the cone
+        glVertex3f(x, y, z);             // Base of the cone
+    }
+}
+
+void drawSpotLight(const spotLight &light)
+{
+    std::cout << "draw spot light" << std::endl;
+    std::cout << "light position: " << light.position.x << " " << light.position.y << " " << light.position.z << std::endl;
+    std::cout << "light direction: " << light.direction.x << " " << light.direction.y << " " << light.direction.z << std::endl;
+    glColor3f(light.color.r, light.color.g, light.color.b);
+    glBegin(GL_TRIANGLE_STRIP);
+    drawCone(light.position.x, light.position.y, light.position.z,
+             light.direction.x*10, light.direction.y*10, light.direction.z*10,
+             10.0f);
+    glEnd();
 }
 
 /* Handler for window-repaint event. Called back when the window first appears and

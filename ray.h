@@ -38,7 +38,7 @@ struct Ray
         double b = oc.dot(direction);
         double c = oc.dot(oc) - sphere.radius * sphere.radius;
         double discriminant = b * b - a * c;
-        if (discriminant > 0)
+        if (discriminant > 0 && a != 0)
         {
             double temp = (-b - sqrt(discriminant)) / a;
 

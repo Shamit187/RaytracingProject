@@ -64,6 +64,45 @@ Color lightInteraction(const Ray &originalRay, const Intersection &intersection,
     
     reflectedRay.direction = (originalRay.direction + intersection.normal * 2).normalize();
     reflectedRay.origin = intersection.point + reflectedRay.direction * e;
+
+    Ray refractedRay;
+    float n1, n2;
+
+    // first see if ray is entering or exiting the object
+    if (originalRay.direction.dot(intersection.normal) < 0)
+    {
+        // ray is entering the object
+        n1 = 1.0f;
+        n2 = 1.5f;
+    }
+    else
+    {
+        // ray is exiting the object
+        n1 = 1.5f;
+        n2 = 1.0f;
+    }
+
+    float n = n1 / n2;
+    float cosI = -intersection.normal.dot(originalRay.direction);
+    float sinT2 = n * n * (1.0f - cosI * cosI);
+
+    if (sinT2 > 1.0f)
+    {
+        // total internal reflection
+        refractedRay.direction = (originalRay.direction + intersection.normal * 2).normalize();
+        refractedRay.origin = intersection.point + refractedRay.direction * e;
+    }
+    else
+    {
+        // refraction
+        refractedRay.direction = (originalRay.direction * n + intersection.normal * (n * cosI - sqrt(1.0f - sinT2))).normalize();
+        refractedRay.origin = intersection.point + refractedRay.direction * e;
+    }
+
+
+    logFile << "Refracted Ray Origin: " << refractedRay.origin.x << " " << refractedRay.origin.y << " " << refractedRay.origin.z << "\n";
+    logFile << "Refracted Ray Direction: " << refractedRay.direction.x << " " << refractedRay.direction.y << " " << refractedRay.direction.z << "\n\n";
+
     for (auto light : lights)
     {
         // check if light direction is visible from plane
@@ -90,15 +129,18 @@ Color lightInteraction(const Ray &originalRay, const Intersection &intersection,
     }
     tempColor = material.color * material.diffuse * lambert + 
                 material.color * material.specular * phong + 
-                material.color * material.ambient + 
-                rayCast(reflectedRay, iterationDepth - 1) * material.reflection;
+                material.color * material.ambient;
+    if(material.reflection > 0.0f)
+                tempColor = tempColor + rayCast(reflectedRay, iterationDepth - 1) * material.reflection;
+    if(material.refraction > 0.0f)
+                tempColor = tempColor + rayCast(refractedRay, iterationDepth - 1) * material.refraction;
 
     return tempColor;
 }
 
 Color rayCast(const Ray &ray, const int iterationDepth)
 {
-    if (iterationDepth == 0)
+    if (iterationDepth <= 0)
         return Color(0.0f, 0.0f, 0.0f);
 
     // fong model for lighting
